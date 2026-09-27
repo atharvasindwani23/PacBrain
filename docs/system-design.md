@@ -1,3 +1,5 @@
+> Historical proposal. The merged implementation uses DeepSeek-R1-Distill-Qwen-1.5B served through Modal, with hosted Gbrain already implemented. See [the current architecture](architecture.md) and [verified setup status](setup-status.md). The proposal below is preserved as design history.
+
 # Pac-Man system design with DeepSeek Flash
 
 Design proposal, September 27, 2026. This document distinguishes existing memory code from the proposed game runner and deployment. It does not claim end-to-end gameplay or hosted execution has been demonstrated.

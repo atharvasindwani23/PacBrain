@@ -1,65 +1,79 @@
-# Own Your Intelligence — Pac-Man Memory
+# PacBrain
 
-Person C's memory layer for the hackathon: validate a successful Pac-Man opening, extract its actual action sequence through Memorable, store it in GBrain, and replay it only while the current game still matches.
+**Teach a small model to play. Give it a memory it can keep.**
 
-This repository supplies memory and integration utilities. The playable environment, River policy/training, replay viewer, and QM worker execution must be connected by the other teammates.
+Built for the **Own Your Intelligence** hackathon. PacBrain combines a Pac-Man policy fine-tuned on expert games with procedural memory powered by **Memorable + Gbrain**.
 
-## Start in three steps
+[Recorded results](results/results.md) · [Memory contract](contract.md) · [Architecture](docs/architecture.md) · [Verified status](docs/setup-status.md)
 
-1. **Run the local checks and agree on the trace contract.** Python 3.9+ is sufficient for the Python code; there are no Python package dependencies.
-
-   ```bash
-   python3 -m unittest discover -s tests -v
-   python3 scripts/demo_memory.py
-   python3 -m memory doctor
-   ```
-
-   The demo uses a **synthetic fixture and local storage only**. It shows an opening being recalled and replay stopping when a ghost approaches. Send the gameplay teammate [contract.md](contract.md); they must log pre-action observations and the actions actually executed.
-
-2. **Connect the real memory providers.**
-
-   Create a private `.env` from [.env.example](.env.example), preserving any existing values. Supply `MEMORABLE_API_KEY` from the [Memorable dashboard](https://memorable.sh/dash). For hosted GBrain, set `GBRAIN_MCP_URL` and `GBRAIN_ACCESS_TOKEN` to the approved workspace-memory connection. With both present, the adapter automatically uses authenticated HTTP MCP. A partial hosted configuration reports an error.
-
-   To use local PGLite instead, run:
-
-   ```bash
-   bash scripts/setup_gbrain.sh
-   export GBRAIN_TRANSPORT=local
-   export GBRAIN_BIN="$PWD/.runtime/bin/gbrain"
-   export GBRAIN_HOME="$PWD/data/gbrain-home"
-   ```
-
-   Local GBrain keyword search needs no API key. The setup downloads a verified workspace-local Bun runtime and pinned GBrain source; it does not modify global shell configuration. `GBRAIN_TRANSPORT=local` explicitly overrides hosted settings. `doctor` reports configuration and selected transport only, not a live connection check.
-
-3. **Ingest a real game and use the recalled procedure.** Replace these example paths/layout with the gameplay runner's actual output:
-
-   ```bash
-   python3 extract.py traces/episode.json --gbrain
-   python3 -m memory recall --layout mediumClassic --provider gbrain --observation traces/current_observation.json
-   ```
-
-   Extraction defaults to the real Memorable API. `--gbrain` indexes the validated envelope; recall defaults to actual GBrain search. Add the per-move cursor loop from [contract.md](contract.md). A failed provider call returns an error, without silently claiming local fallback as sponsor usage.
-
-## What works and what remains
-
-| Component | Current status |
-|---|---|
-| Opening extraction and guarded replay | Implemented and tested; rejects mismatched positions, changed walls, illegal moves, and nearby active ghosts |
-| GBrain | Hosted HTTP MCP write → search → canonical page retrieval verified with a synthetic memory page; isolated local PGLite also verified |
-| Memorable | Live extraction API verified with the labeled synthetic trace; returned steps and request receipt stored with the procedure |
-| Gameplay benefit | Needs genuine episodes and comparison runs; no score improvement is claimed |
-| River | Gameplay/training teammate integration required |
-| QM | Handoff instructions provided; no hosted worker execution has been demonstrated |
-
-Both live memory providers have been verified using synthetic data only. Real gameplay benefit still needs a game trace matching the contract and the teammate's environment/policy entry point. A new machine or QM worker also needs its own approved hosted connection values; credentials are not included in this repository.
-
-Useful explicit local-only commands:
+## See the demo
 
 ```bash
-python3 -m memory extract examples/synthetic_trace.json --extractor local
-python3 -m memory recall --layout testCorridor --provider local
+python3 -m http.server 8000 --bind 127.0.0.1
 ```
 
-These are development checks, not evidence of Memorable usage. The stored envelope records `extraction` and provider receipts. Ingestion reports `gbrain_stored` separately from `gbrain_search_verified`; `gbrain_indexed` is an alias for verified search visibility. Retrieval reports its actual `provider`.
+Open **http://127.0.0.1:8000/viewer.html** for the recorded before/after replays, per-seed results, and score comparison. The viewer uses checked-in artifacts and requires no API keys.
 
-Implementation details: [trace and replay contract](contract.md), [GBrain setup](docs/gbrain.md), [Memorable API](docs/memorable.md), [QM handoff](docs/qm-handoff.md), [verified setup status](docs/setup-status.md).
+| Recorded evaluation | Base model | Fine-tuned model |
+| --- | ---: | ---: |
+| Mean score | −428.1 | 387.1 |
+| Games won | 0 / 10 | 5 / 10 |
+| Invalid response / API-error fallback rate | 82.48% | 0% |
+
+These are ten recorded games per model on `classic-small`, seeds 2000–2009. The fallback metric counts proposals that could not become legal moves, including request failures; the engine receives a legal fallback. These artifacts demonstrate the recorded fine-tuning result, **not a measured memory benefit**. They do not establish performance on new layouts or a large evaluation set.
+
+## Run locally
+
+Use Python **3.11 or 3.12** for the complete project. The standalone memory package also supports Python 3.9.
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m unittest discover -s tests -v
+.venv/bin/python scripts/demo_memory.py
+```
+
+Copy `.env.example` to a private `.env` and supply the memory provider credentials when using live extraction or recall. Set `PACBRAIN_API_KEY` if your model endpoint requires authentication. Never commit credentials. The recorded viewer and offline tests work without them.
+
+## How the pieces fit
+
+| Component | Responsibility |
+| --- | --- |
+| `expert.py`, `gen_data.py` | Play CPU expert games and collect training examples |
+| `serializer.py` | Shared board prompt and action parsing for training and inference |
+| `modal_train.py` | LoRA SFT of DeepSeek-R1-Distill-Qwen-1.5B on a Modal GPU |
+| `modal_serve.py` | Serve base and tuned models through vLLM |
+| `llm_agent.py`, `eval.py` | Run a model policy, guarded memory replay, and per-game evaluation |
+| `memory/`, `extract.py`, `recall.py` | Validate observed openings, extract through Memorable, persist and retrieve through Gbrain |
+| `viewer.html`, `results/` | Present recorded evaluation results and replays |
+
+The repository includes **400 recorded expert games**, of which **300 were wins**, and **23,439 unique training examples**. The legacy prompt/completion traces remain useful training evidence, but omit per-step scores and cannot be passed directly to the guarded memory extractor. See [trace formats](traces/README.md).
+
+## Train and evaluate
+
+The existing scripts are included for reproducibility. Training and deployment use your Modal account and GPU resources; merging this repository does not launch either job.
+
+```bash
+.venv/bin/python -m pip install -r requirements-modal.txt
+# The supplied dataset is data/train.jsonl. Generate a new one only if needed:
+.venv/bin/python gen_data.py 400
+.venv/bin/modal run --detach modal_train.py --data data/generated/train.jsonl
+.venv/bin/modal deploy modal_serve.py
+.venv/bin/python eval.py --endpoint <base-endpoint>/v1 --label base_new
+.venv/bin/python eval.py --endpoint <tuned-endpoint>/v1 --label tuned_new
+.venv/bin/python make_results.py
+```
+
+Generation defaults to `data/generated/` and `traces/generated/`. Evaluation uses separate labels to preserve the supplied benchmark. Existing outputs require an explicit `--overwrite`. The report command reads the original `base` and `tuned` artifacts. Set the policy endpoint and its private credential according to `eval.py --help` and the deployment configuration.
+
+For memory setup and the full ingestion/replay loop, follow [the memory guide](docs/memory.md) and [the gameplay contract](contract.md). Both local Gbrain and authenticated hosted MCP are supported. The cloud transport requires no laptop tunnel.
+
+## Scope and provenance
+
+The implemented model path uses **DeepSeek + Modal**. River and QM were part of the original plan; their handoff notes remain reference material, and no River training or QM gameplay run is claimed here. A real winning expert run was recorded, extracted into an 18-step opening by Memorable, stored in hosted Gbrain, and recalled from an empty local store. All 18 guarded actions matched the observed trace. This verifies the memory loop; matched model runs are still needed to measure its gameplay benefit.
+
+This integration preserves both the `pacbrain` gameplay history and the original memory history.
+
+## Credits
+
+Game engine: [edq-pacai](https://pypi.org/project/edq-pacai/), a Python rewrite of the [UC Berkeley CS188 Pac-Man projects](http://ai.berkeley.edu). Preserve the engine's educational-use attribution. Model: [DeepSeek-R1-Distill-Qwen-1.5B](https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B), MIT license. Training examples and evaluation artifacts were supplied in the `pacbrain` branch.

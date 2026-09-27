@@ -1,0 +1,3 @@
+# Optional launcher only. GPU training/serving dependencies are pinned in the
+# Modal image declarations; installing this file does not start a remote job.
+modal==1.5.3

@@ -1,0 +1,4 @@
+# CPU gameplay/evaluation and memory integration. Requires Python >=3.10.
+# The stdlib-only memory tools can still be used without these packages.
+edq-pacai==2.1.0
+openai==2.54.0

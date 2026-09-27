@@ -1,0 +1,1137 @@
+{
+  "episode_id": "pacai-3000-37caa477b7da",
+  "layout": "classic-small",
+  "seed": 3000,
+  "agent": "expert",
+  "synthetic": false,
+  "observation_timing": "pre_action",
+  "frames": [
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%......%G  G%......%\n%.%%...%%  %%...%%.%\n%.%o.%........%.o%.%\n%.%%.%.%%%%%%.%.%%.%\n%........P.........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 0,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%......% GG %......%\n%.%%...%%  %%...%%.%\n%.%o.%........%.o%.%\n%.%%.%.%%%%%%.%.%%.%\n%.......P .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 9,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%......% GG %......%\n%.%%...%%  %%...%%.%\n%.%o.%........%.o%.%\n%.%%.%.%%%%%%.%.%%.%\n%......P  .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 18,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%......%   G%......%\n%.%%...%%G %%...%%.%\n%.%o.%........%.o%.%\n%.%%.%.%%%%%%.%.%%.%\n%.....P   .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "W"
+      ],
+      "score": 27,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%......%  G %......%\n%.%%...%% G%%...%%.%\n%.%o.%........%.o%.%\n%.%%.%.%%%%%%.%.%%.%\n%....P    .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 36,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%......%    %......%\n%.%%...%% G%%...%%.%\n%.%o.%....G...%.o%.%\n%.%%.%.%%%%%%.%.%%.%\n%...P     .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "W"
+      ],
+      "score": 45,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "N",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%......%    %......%\n%.%%...%%  %%...%%.%\n%.%o.%....GG..%.o%.%\n%.%%P%.%%%%%%.%.%%.%\n%...      .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "S"
+      ],
+      "score": 54,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "N",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%......%    %......%\n%.%%...%%  %%...%%.%\n%.%oP%...G..G.%.o%.%\n%.%% %.%%%%%%.%.%%.%\n%...      .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "S",
+        "W"
+      ],
+      "score": 63,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "N",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%......%    %......%\n%.%%P..%%  %%...%%.%\n%.%o %..G....G%.o%.%\n%.%% %.%%%%%%.%.%%.%\n%...      .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "S"
+      ],
+      "score": 72,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "N",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%...P..%    %......%\n%.%% ..%%  %%...%%.%\n%.%o %.G......%.o%.%\n%.%% %.%%%%%%G%.%%.%\n%...      .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "S",
+        "W"
+      ],
+      "score": 81,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%..P ..%    %......%\n%.%% ..%%  %%...%%.%\n%.%o %G.......%.o%.%\n%.%% %.%%%%%%.%.%%.%\n%...      ...G.....%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 90,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%.P  ..%    %......%\n%.%% ..%%  %%...%%.%\n%.%o %........%.o%.%\n%.%% %G%%%%%%.%.%%.%\n%...      ..G......%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 99,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%P   ..%    %......%\n%.%% ..%%  %%...%%.%\n%.%o %........%.o%.%\n%.%% %.%%%%%%.%.%%.%\n%...  G   .G.......%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "S"
+      ],
+      "score": 108,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "S",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n%P%% ..%%  %%...%%.%\n%.%o %........%.o%.%\n%.%% %.%%%%%%.%.%%.%\n%...   G  G........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "S"
+      ],
+      "score": 117,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "S",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% ..%%  %%...%%.%\n%P%o %........%.o%.%\n%.%% %.%%%%%%.%.%%.%\n%...    GG.........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "S"
+      ],
+      "score": 126,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "S",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% ..%%  %%...%%.%\n% %o %........%.o%.%\n%P%% %.%%%%%%.%.%%.%\n%...    GG.........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "S"
+      ],
+      "score": 135,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "S",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% ..%%  %%...%%.%\n% %o %........%.o%.%\n% %% %.%%%%%%.%.%%.%\n%P..   G  G........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E"
+      ],
+      "score": 144,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% ..%%  %%...%%.%\n% %o %........%.o%.%\n% %% %.%%%%%%.%.%%.%\n% P.  G   .G.......%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 153,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% ..%%  %%...%%.%\n% %o %........%.o%.%\n% %% %.%%%%%%.%.%%.%\n%  P G    ..G......%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 162,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% ..%%  %%...%%.%\n% %o %........%.o%.%\n% %% %.%%%%%%.%.%%.%\n% P G     ...G.....%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 161,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% ..%%  %%...%%.%\n% %o %........%.o%.%\n% %%G%.%%%%%%.%.%%.%\n%P        ....G....%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E"
+      ],
+      "score": 160,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% ..%%  %%...%%.%\n% %oG%........%.o%.%\n% %% %.%%%%%%.%.%%.%\n% P       .....G...%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 159,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% ..%%  %%...%%.%\n% %G %........%.o%.%\n% %% %.%%%%%%.%.%%.%\n%  P      ......G..%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 158,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% ..%%  %%...%%.%\n% %oG%........%.o%.%\n% %% %.%%%%%%.%.%%.%\n%   P     .......G.%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "W"
+      ],
+      "score": 157,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %%G..%%  %%...%%.%\n% %o %........%.o%.%\n% %% %.%%%%%%.%.%%.%\n%    P    ........G%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 156,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%   G..%    %......%\n% %% ..%%  %%...%%.%\n% %o %........%.o%.%\n% %% %.%%%%%%.%.%%G%\n%     P   .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "W"
+      ],
+      "score": 155,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "N",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%  G ..%    %......%\n% %% ..%%  %%...%%.%\n% %o %........%.o%G%\n% %% %P%%%%%%.%.%%.%\n%         .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "S"
+      ],
+      "score": 164,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "N",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n% G  ..%    %......%\n% %% ..%%  %%...%%G%\n% %o %P.......%.o%.%\n% %% % %%%%%%.%.%%.%\n%         .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "S"
+      ],
+      "score": 173,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%G   ..%    %.....G%\n% %% ..%%  %%...%%.%\n% %o % P......%.o%.%\n% %% % %%%%%%.%.%%.%\n%         .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 182,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %....G.%\n%G%% ..%%  %%...%%.%\n% %o %  P.....%.o%.%\n% %% % %%%%%%.%.%%.%\n%         .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 191,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %...G..%\n% %% ..%%  %%...%%.%\n%G%o %   P....%.o%.%\n% %% % %%%%%%.%.%%.%\n%         .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "W"
+      ],
+      "score": 200,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %..G...%\n% %% ..%%  %%...%%.%\n% %o %    P...%.o%.%\n%G%% % %%%%%%.%.%%.%\n%         .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "W"
+      ],
+      "score": 209,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% ..%%  %%..G%%.%\n% %o %     P..%.o%.%\n% %% % %%%%%%.%.%%.%\n%G        .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 218,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% ..%%  %%...%%.%\n% %o %      P.%Go%.%\n% %% % %%%%%%.%.%%.%\n% G       .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 227,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% ..%%  %%...%%.%\n% %o %       P%.G%.%\n% %% % %%%%%%.%.%%.%\n%  G      .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "S",
+        "W"
+      ],
+      "score": 236,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "S",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% ..%%  %%...%%.%\n% %o %        %Go%.%\n% %% % %%%%%%P%.%%.%\n%   G     .........%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "S"
+      ],
+      "score": 245,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "S",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% ..%%  %%...%%.%\n% %o %        %.o%.%\n% %%G% %%%%%% %G%%.%\n%         ...P.....%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "W"
+      ],
+      "score": 254,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% ..%%  %%...%%.%\n% %oG%        %.o%.%\n% %% % %%%%%% %.%%.%\n%         ..P .G...%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 263,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %%G..%%  %%...%%.%\n% %o %        %.o%.%\n% %% % %%%%%% %.%%.%\n%         .P  ..G..%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 272,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%   G..%    %......%\n% %% ..%%  %%...%%.%\n% %o %        %.o%.%\n% %% % %%%%%% %.%%.%\n%         P   ...G.%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 281,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    G.%    %......%\n% %% ..%%  %%...%%.%\n% %o %        %.o%.%\n% %% % %%%%%% %.%%.%\n%          P  ....G%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 280,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    .G%    %......%\n% %% ..%%  %%...%%.%\n% %o %        %.o%.%\n% %% % %%%%%% %.%%G%\n%           P .....%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 279,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% .G%%  %%...%%.%\n% %o %        %.o%G%\n% %% % %%%%%% %.%%.%\n%            P.....%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "W"
+      ],
+      "score": 278,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% G.%%  %%...%%G%\n% %o %        %.o%.%\n% %% % %%%%%% %.%%.%\n%             P....%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 287,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    G.%    %.....G%\n% %% ..%%  %%...%%.%\n% %o %        %.o%.%\n% %% % %%%%%% %.%%.%\n%              P...%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "W"
+      ],
+      "score": 296,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    .G%    %....G.%\n% %% ..%%  %%...%%.%\n% %o %        %.o%.%\n% %% % %%%%%% %.%%.%\n%               P..%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 305,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %...G..%\n% %% .G%%  %%...%%.%\n% %o %        %.o%.%\n% %% % %%%%%% %.%%.%\n%                P.%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 314,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %..G...%\n% %% G.%%  %%...%%.%\n% %o %        %.o%.%\n% %% % %%%%%% %.%%.%\n%                 P%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "W"
+      ],
+      "score": 323,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "N",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    G.%    %.G....%\n% %% ..%%  %%...%%.%\n% %o %        %.o%.%\n% %% % %%%%%% %.%%P%\n%                  %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "S"
+      ],
+      "score": 332,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "N",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    .G%    %......%\n% %% ..%%  %%.G.%%.%\n% %o %        %.o%P%\n% %% % %%%%%% %.%% %\n%                  %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "S"
+      ],
+      "score": 341,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "N",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %......%\n% %% .G%%  %%..G%%P%\n% %o %        %.o% %\n% %% % %%%%%% %.%% %\n%                  %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "S"
+      ],
+      "score": 350,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "N",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %.....P%\n% %% ..%%  %%...%% %\n% %o %G       %Go% %\n% %% % %%%%%% %.%% %\n%                  %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "S",
+        "W"
+      ],
+      "score": 359,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %....P %\n% %% ..%%  %%...%% %\n% %o % G      %.o% %\n% %% % %%%%%% %G%% %\n%                  %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 368,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %...P  %\n% %% ..%%  %%...%% %\n% %o %  G     %.o% %\n% %% % %%%%%% %.%% %\n%              G   %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 377,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %..P   %\n% %% ..%%  %%...%% %\n% %o %   G    %.o% %\n% %% % %%%%%% %.%% %\n%               G  %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "S",
+        "W"
+      ],
+      "score": 386,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %.P    %\n% %% ..%%G %%...%% %\n% %o %        %.o% %\n% %% % %%%%%% %.%% %\n%                G %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "S",
+        "W"
+      ],
+      "score": 395,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..% G  %P     %\n% %% ..%%  %%...%% %\n% %o %        %.o% %\n% %% % %%%%%% %.%% %\n%                 G%\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "S"
+      ],
+      "score": 404,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "S",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%  G %      %\n% %% ..%%  %%P..%% %\n% %o %        %.o% %\n% %% % %%%%%% %.%%G%\n%                  %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "S"
+      ],
+      "score": 413,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %      %\n% %% ..%% G%% P.%% %\n% %o %        %.o%G%\n% %% % %%%%%% %.%% %\n%                  %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "W"
+      ],
+      "score": 422,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "E",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %      %\n% %% ..%%G %%  P%%G%\n% %o %        %.o% %\n% %% % %%%%%% %.%% %\n%                  %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "S",
+        "W"
+      ],
+      "score": 431,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "S",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %     G%\n% %% ..%%  %%   %% %\n% %o %   G    %Po% %\n% %% % %%%%%% %.%% %\n%                  %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "S"
+      ],
+      "score": 440,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "S",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %    G %\n% %% ..%%  %%   %% %\n% %o %    G   % o% %\n% %% % %%%%%% %P%% %\n%                  %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "S"
+      ],
+      "score": 449,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "S",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %   G  %\n% %% ..%% G%%   %% %\n% %o %        % o% %\n% %% % %%%%%% % %% %\n%              P   %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "W"
+      ],
+      "score": 448,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %  G   %\n% %% ..%%G %%   %% %\n% %o %        % o% %\n% %% % %%%%%% % %% %\n%             P    %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 447,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %      %\n% %% ..%%  %%  G%% %\n% %o %   G    % o% %\n% %% % %%%%%% % %% %\n%            P     %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "W"
+      ],
+      "score": 446,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %      %\n% %% ..%%  %%   %% %\n% %o %    G   %Go% %\n% %% % %%%%%% % %% %\n%           P      %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 445,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %      %\n% %% ..%% G%%   %% %\n% %o %        % G% %\n% %% % %%%%%% % %% %\n%          P       %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 444,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %      %\n% %% ..%%G %%   %% %\n% %o %        %Go% %\n% %% % %%%%%% % %% %\n%         P        %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 443,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..% G  %      %\n% %% ..%%  %%  G%% %\n% %o %        % o% %\n% %% % %%%%%% % %% %\n%        P         %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 442,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%  G %  G   %\n% %% ..%%  %%   %% %\n% %o %        % o% %\n% %% % %%%%%% % %% %\n%       P          %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 441,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%   G% G    %\n% %% ..%%  %%   %% %\n% %o %        % o% %\n% %% % %%%%%% % %% %\n%      P           %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "W"
+      ],
+      "score": 440,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%  G %      %\n% %% ..%%  %% G %% %\n% %o %        % o% %\n% %% % %%%%%% % %% %\n%     P            %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "W"
+      ],
+      "score": 439,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "N",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..% G  %      %\n% %% ..%%  %%G  %% %\n% %o %        % o% %\n% %% %P%%%%%% % %% %\n%                  %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "S"
+      ],
+      "score": 438,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "N",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %      %\n% %% ..%%G %%   %% %\n% %o %P      G% o% %\n% %% % %%%%%% % %% %\n%                  %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "E",
+        "S"
+      ],
+      "score": 437,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "N",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    ..%    %      %\n% %% .P%%  %%   %% %\n% %o %   G    % o% %\n% %% % %%%%%%G% %% %\n%                  %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "N",
+        "S",
+        "W"
+      ],
+      "score": 446,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "N",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    .P%    %      %\n% %% . %%  %%   %% %\n% %o %    G   % o% %\n% %% % %%%%%% % %% %\n%            G     %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "S",
+        "W"
+      ],
+      "score": 455,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "W",
+      "source": "policy",
+      "action_ok": true
+    },
+    {
+      "grid": "%%%%%%%%%%%%%%%%%%%%\n%    P %    %      %\n% %% . %%  %%   %% %\n% %o %     G  % o% %\n% %% % %%%%%% % %% %\n%           G      %\n%%%%%%%%%%%%%%%%%%%%",
+      "legal_moves": [
+        "E",
+        "S",
+        "W"
+      ],
+      "score": 464,
+      "terminal": false,
+      "cleared": false,
+      "died": false,
+      "action": "S",
+      "source": "policy",
+      "action_ok": true
+    }
+  ],
+  "provenance": {
+    "engine": "edq-pacai",
+    "score_source": "state.score",
+    "action_source": "state.get_agent_actions(0)"
+  },
+  "terminal_observation": {
+    "grid": "%%%%%%%%%%%%%%%%%%%%\n%      %    %      %\n% %% P %%  %%   %% %\n% %o %     G  % o% %\n% %% % %%%%%% % %% %\n%           G      %\n%%%%%%%%%%%%%%%%%%%%",
+    "legal_moves": [],
+    "score": 973,
+    "terminal": true,
+    "cleared": true,
+    "died": false
+  },
+  "result": {
+    "score": 973,
+    "cleared": true,
+    "died": false,
+    "terminal": true,
+    "turns": 77,
+    "engine_turns": 229,
+    "llm_calls": 0,
+    "procedure_steps": 0
+  }
+}

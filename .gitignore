@@ -2,7 +2,7 @@
 .env.*
 !.env.example
 .venv/
-.venv-modal/
+.venv-*/
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -10,5 +10,7 @@ __pycache__/
 .runtime/
 data/
 traces/
+results/*_stats_*.jsonl
+results/*_traces/
 node_modules/
 .DS_Store

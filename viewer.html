@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#142131">
+  <title>PacBrain — A better next move</title>
+  <link rel="stylesheet" href="assets/viewer.css">
+  <script src="assets/viewer.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to results</a>
+  <header class="topbar wrap">
+    <a class="brand" href="#" aria-label="PacBrain home"><span class="pac-mark" aria-hidden="true"></span>PacBrain<span class="brand-dot">.</span></a>
+    <nav aria-label="Page navigation"><a href="#replays">Replays</a><a href="#results">Results</a><a href="#memory">Memory</a></nav>
+    <span class="event-label">OWN YOUR INTELLIGENCE <span>↗</span></span>
+  </header>
+
+  <main id="main">
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="tiny-pac" aria-hidden="true"></span> SMALL MODEL. REAL GAME. ROOM TO LEARN.</p>
+        <h1 id="hero-title">A better<br><span>next move.</span></h1>
+        <p class="hero-description">Teach a 1.5B model to navigate the maze.<br>Then give it a memory worth keeping.</p>
+        <div class="hero-tags"><span>DeepSeek · 1.5B</span><span>LoRA fine-tune</span><span>Modal compute</span></div>
+      </div>
+      <div class="hero-result" aria-label="Recorded evaluation highlight">
+        <div class="result-top"><span class="micro-label">FROM THE RECORDED RUNS</span><span class="recorded"><i aria-hidden="true"></i> 10 games / model</span></div>
+        <div class="win-comparison"><div><span class="win-label">Before training</span><strong id="hero-base-wins">—</strong><span>boards cleared</span></div><span class="comparison-arrow" aria-hidden="true">↗</span><div><span class="win-label">After training</span><strong id="hero-tuned-wins">—</strong><span>boards cleared</span></div></div>
+        <div class="hero-result-footer"><span class="pellet-trail" aria-hidden="true"><i></i><i></i><i></i><b class="pac-mark"></b></span><p>A small experiment.<br><strong>An observable difference.</strong></p></div>
+      </div>
+    </section>
+
+    <section class="evidence wrap" aria-label="Evaluation scope">
+      <span class="evidence-label"><span class="status-dot" aria-hidden="true"></span> RECORDED EVALUATION</span>
+      <p>Same board. Seeds 2000–2009. <strong>10 games per model.</strong> A small sample, not a general performance claim.</p>
+      <a href="results/results.md">View run notes <span aria-hidden="true">↗</span></a>
+    </section>
+
+    <div class="workspace">
+      <div class="wrap">
+        <div id="load-status" class="load-status" role="status">Loading recorded results…</div>
+        <section class="summary-grid" aria-label="Benchmark summary">
+          <article class="metric"><p>Average score <span class="metric-icon" aria-hidden="true">↗</span></p><div class="metric-value" id="avg-score">—</div><div class="metric-detail"><span id="score-baseline">Base —</span><strong id="score-change">—</strong></div></article>
+          <article class="metric"><p>Boards cleared <span class="metric-icon" aria-hidden="true">◫</span></p><div class="metric-value" id="win-rate">—</div><div class="metric-detail"><span id="wins-baseline">Base —</span><strong id="wins-count">—</strong></div></article>
+          <article class="metric"><p>Invalid proposals <span class="metric-icon" aria-hidden="true">⌁</span></p><div class="metric-value" id="invalid-rate">—</div><div class="metric-detail"><span id="invalid-baseline">Base —</span><strong id="invalid-change">—</strong></div></article>
+        </section>
+
+        <section id="replays" class="section" aria-labelledby="replays-title">
+          <div class="section-heading"><div><p class="eyebrow dark">01 / WATCH THE DIFFERENCE</p><h2 id="replays-title">Same maze. New instincts.</h2></div><div class="replay-controls"><div class="seed-control" aria-label="Recorded game seed"><span>SEED</span><button type="button" data-seed="2000" aria-pressed="true">2000</button><button type="button" data-seed="2001" aria-pressed="false">2001</button></div><button type="button" class="icon-button" id="restart" title="Restart recorded replays" aria-label="Restart recorded replays">↻</button><button type="button" class="text-button" id="still-frames" aria-pressed="false">Still frames</button></div></div>
+          <div class="replays-grid">
+            <article class="replay-card base-card"><div class="replay-heading"><div><span class="model-kicker">BEFORE</span><h3>Base model</h3></div><span class="outcome" id="base-outcome">Recorded run</span></div><div class="game-screen"><img id="base-replay" alt="Recorded base model playing Pac-Man, seed 2000" width="1000" height="400"><canvas id="base-still" hidden aria-label="Still frame of the base model's recorded game"></canvas><div class="screen-error" id="base-image-error" hidden>Replay could not load.</div></div><div class="replay-stats"><div><span>FINAL SCORE</span><strong id="base-seed-score">—</strong></div><div><span>DECISIONS</span><strong id="base-seed-moves">—</strong></div><div><span>INVALID</span><strong id="base-seed-invalid">—</strong></div><span class="run-id" id="base-run-id">RUN / 2000</span></div></article>
+            <article class="replay-card tuned-card"><div class="replay-heading"><div><span class="model-kicker">AFTER</span><h3>Fine-tuned model</h3></div><span class="outcome" id="tuned-outcome">Recorded run</span></div><div class="game-screen"><img id="tuned-replay" alt="Recorded fine-tuned model playing Pac-Man, seed 2000" width="1000" height="400"><canvas id="tuned-still" hidden aria-label="Still frame of the fine-tuned model's recorded game"></canvas><div class="screen-error" id="tuned-image-error" hidden>Replay could not load.</div><div class="no-replay" id="no-tuned-replay" hidden><span class="outline-pac" aria-hidden="true"></span><strong>No GIF for this variant</strong><p>The recorded scores are available below.<br>Switch to “Fine-tuned” to watch its replays.</p></div></div><div class="replay-stats"><div><span>FINAL SCORE</span><strong id="tuned-seed-score">—</strong></div><div><span>DECISIONS</span><strong id="tuned-seed-moves">—</strong></div><div><span>INVALID</span><strong id="tuned-seed-invalid">—</strong></div><span class="run-id" id="tuned-run-id">RUN / 2000</span></div></article>
+          </div>
+          <div class="replay-footnote"><p><span aria-hidden="true">◉</span> Recorded GIFs · independent playback timing · classic-small board</p><p>Invalid proposals trigger a legal fallback in the evaluator.</p></div>
+        </section>
+
+        <section id="results" class="section results-section" aria-labelledby="results-title">
+          <div class="section-heading"><div><p class="eyebrow dark">02 / EVERY RUN COUNTS</p><h2 id="results-title">Look beyond the highlight.</h2></div><label class="variant-control" for="variant"><span>COMPARE WITH BASE</span><select id="variant"><option value="tuned">Fine-tuned</option><option value="tuned_t04">Fine-tuned · t04 variant</option></select></label></div>
+          <div class="chart-card"><div class="chart-top"><div><h3>Score across all 10 seeds</h3><p>Higher is better. The zero line separates positive and negative scores.</p></div><div class="legend"><span><i class="base-key"></i>Base</span><span><i class="tuned-key"></i><span id="chart-variant-name">Fine-tuned</span></span></div></div><div id="score-chart" class="chart-container" role="img" aria-label="Loading score comparison chart"></div><p class="chart-scroll-hint">Swipe to compare all 10 seeds <span aria-hidden="true">→</span></p><div class="chart-bottom"><p id="chart-insight">Loading the full evaluation…</p><span id="sample-count">N = 10 + 10</span></div></div>
+          <div id="variant-note" class="variant-note" hidden><strong>Another result, also worth showing.</strong> This file is labeled <code>tuned_t04</code>. The result file does not include sampling metadata or GIFs, so this view preserves its original label.</div>
+          <details class="data-details"><summary><span>Inspect the recorded numbers</span><span class="details-plus" aria-hidden="true">+</span></summary><div class="table-scroll"><table><caption class="sr-only">Per-seed recorded base and selected model results</caption><thead><tr><th scope="col">Seed</th><th scope="col">Base score</th><th scope="col">Tuned score</th><th scope="col">Difference</th><th scope="col">Base outcome</th><th scope="col">Tuned outcome</th></tr></thead><tbody id="data-table"></tbody></table></div><div class="source-links">Source files <a href="results/base.json">base.json ↗</a><a id="variant-source" href="results/tuned.json">tuned.json ↗</a></div></details>
+          <p class="method-note">“Invalid proposals” is the evaluator’s <code>illegal_move_rate</code>: proposals that could not be parsed as a legal move, including request failures, divided by all decisions. The environment receives a legal fallback. These results do not isolate memory effects.</p>
+        </section>
+
+        <section id="memory" class="memory-section" aria-labelledby="memory-title"><div class="memory-intro"><p class="eyebrow">03 / GIVE EXPERIENCE A HOME</p><h2 id="memory-title">Learn the move.<br>Remember the way.</h2><p>Training changes the policy. Procedural memory preserves a useful sequence—and checks whether it still applies.</p><a href="contract.md">Explore the memory contract <span aria-hidden="true">↗</span></a><div class="memory-proof"><strong>18-step routine · verified retrieval</strong><p>Real game → Memorable → GBrain.<br>All 18 actions matched in guarded trace replay.</p><div><a href="docs/setup-status.md">Verification notes ↗</a><a href="examples/pacbrain_expert_trace.json">Real game trace ↗</a></div></div></div><div class="memory-path"><article><span class="step-number">01</span><div><span class="memory-provider">MEMORABLE</span><h3>Extract the experience</h3><p>Turn validated actions from an episode into a reusable procedure.</p></div></article><article><span class="step-number">02</span><div><span class="memory-provider">GBRAIN</span><h3>Keep what was learned</h3><p>Store the procedure with its context and retrieve the canonical record.</p></div></article><article><span class="step-number">03</span><div><span class="memory-provider">GUARDED REPLAY</span><h3>Check before every move</h3><p>Hand control back to the policy when the board or nearby ghosts change.</p></div></article><div class="memory-evidence"><span aria-hidden="true">↳</span> Memory integration is separate from the recorded benchmark above. Its gameplay benefit has not been measured here.</div></div></section>
+      </div>
+    </div>
+  </main>
+  <footer class="wrap footer"><a class="brand" href="#"><span class="pac-mark" aria-hidden="true"></span>PacBrain<span class="brand-dot">.</span></a><p>Built at Own Your Intelligence · September 2026</p><a href="README.md">Project & setup <span aria-hidden="true">↗</span></a></footer>
+  <noscript><p class="noscript">Enable JavaScript to explore the recorded data, or open <a href="results/results.md">the static results report</a>.</p></noscript>
+</body>
+</html>

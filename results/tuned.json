@@ -1,0 +1,79 @@
+{
+  "label": "tuned",
+  "games": 10,
+  "avg_score": 387.1,
+  "win_rate": 0.5,
+  "illegal_move_rate": 0.0,
+  "per_game": [
+    {
+      "seed": 2000,
+      "score": 974,
+      "win": true,
+      "moves": 76,
+      "illegal": 0
+    },
+    {
+      "seed": 2001,
+      "score": 965,
+      "win": true,
+      "moves": 85,
+      "illegal": 0
+    },
+    {
+      "seed": 2002,
+      "score": -50,
+      "win": false,
+      "moves": 70,
+      "illegal": 0
+    },
+    {
+      "seed": 2003,
+      "score": 963,
+      "win": true,
+      "moves": 87,
+      "illegal": 0
+    },
+    {
+      "seed": 2004,
+      "score": -58,
+      "win": false,
+      "moves": 98,
+      "illegal": 0
+    },
+    {
+      "seed": 2005,
+      "score": 946,
+      "win": true,
+      "moves": 104,
+      "illegal": 0
+    },
+    {
+      "seed": 2006,
+      "score": -165,
+      "win": false,
+      "moves": 55,
+      "illegal": 0
+    },
+    {
+      "seed": 2007,
+      "score": -275,
+      "win": false,
+      "moves": 35,
+      "illegal": 0
+    },
+    {
+      "seed": 2008,
+      "score": 954,
+      "win": true,
+      "moves": 96,
+      "illegal": 0
+    },
+    {
+      "seed": 2009,
+      "score": -383,
+      "win": false,
+      "moves": 23,
+      "illegal": 0
+    }
+  ]
+}

@@ -1,4 +1,6 @@
-# QM handoff for the memory layer
+# QM handoff for the memory layer (archived proposal)
+
+> QM was removed from the project scope on September 27, 2026. This earlier proposal is preserved for context. The implemented model path is DeepSeek on Modal; see [current architecture](architecture.md) and [verified status](setup-status.md).
 
 This repository does not implement or prove a QM worker run. It provides the memory interface the QM/gameplay teammate can call. QM should orchestrate evaluation; the game runner executes moves and River supplies policy choices when memory cannot continue.
 
