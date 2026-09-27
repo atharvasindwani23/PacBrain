@@ -19,7 +19,8 @@ Use [examples/synthetic_trace.json](examples/synthetic_trace.json) as a format f
 | `frames[].source` | `policy` for the policy's executed choice; `procedure` for memory; use a different value such as `fallback` for corrections/random actions so extraction stops there |
 | `frames[].action_ok` | `true` or `false` only when the environment knows the action outcome; omit if unknown. This is tool execution success, not winning the game |
 | `frames[].legal_moves` | Optional actual legal actions; when present, memory intersects them with grid legality |
-| `frames[].died` | Record `true` when the observation/action carries a known death |
+| `frames[].died` | Optional boolean: the observation is after a known death. For death caused by the frame's action, put this on the following/terminal observation and `result` |
+| `frames[].terminal` / `frames[].cleared` | Optional booleans: the observed episode has ended / the maze is already cleared. No new move is proposed from either state |
 | `terminal_observation` | Optional observation after the final action, including `grid`, `score`, and known death state; needed to verify that final transition |
 | `result` | Outcome object; include actual `score`, `cleared`, `died`, `turns`, and observed call counts when available |
 
@@ -27,11 +28,15 @@ Grid glyphs are `%` wall, `.` pellet, `o` power pellet, `P` Pac-Man, `G` active 
 
 A frame must contain the board **before** its action. The next frame confirms where that move actually landed and the resulting score. Do not record a whole proposed action batch as executed. Log each action individually, including corrections under their actual source. Mark a synthetic fixture explicitly with `synthetic: true`.
 
+All supplied `action_ok`, `died`, `terminal`, `cleared`, and `synthetic` values must be JSON booleans, not `0`/`1`, strings, or null. Omit an unknown flag. Terminal flags describe the observation, while `action_ok` describes the outcome of its attempted action. A legacy action-death flag on a frame still excludes that frame, but following the observation convention preserves the preceding safe transition. Terminal observations and `result` may carry the same terminal flags.
+
 ## What becomes a procedure
 
-Extraction takes a contiguous opening, bounded by `max_steps` (default 40), with positive total observed reward. Each move must match the next observed position, stay in the same wall topology, be legal, and begin beyond the configured active-ghost distance (default 2 maze-path steps). Individual movement costs of −1 are allowed. Extraction stops at the first unsupported transition, fallback action, death, danger, or missing observation.
+Extraction takes a contiguous opening, bounded by `max_steps` (default 40), with positive total observed reward. Each move must match the next observed position, stay in the same wall topology, be legal, and begin beyond the configured active-ghost distance (default 2 maze-path steps). Individual movement costs of −1 are allowed. Extraction stops at the first unsupported transition, fallback action, death, danger, or missing observation. If the complete verified opening has nonpositive reward, the last earlier prefix with positive cumulative reward is retained; an already positive opening is kept in full. A final successful move into a cleared terminal observation may be learned, but no move starting from an ended episode is learned or replayed.
 
 The Memorable draft must contain exactly the independently validated action sequence. An invented, reordered, or missing action rejects the draft. Stored JSON includes the layout, wall-topology hash, episode/seed provenance, observed transitions, reward, extraction method, and provider receipt. Observed reward is evidence from that opening, not a predicted success rate.
+
+Recall ranks compatible procedures by observed reward and opening length, preserving Gbrain's retrieval order for ties. Multiple versions of the same procedure prefer a valid matching Memorable receipt over an explicitly local extraction. This does not give one procedure a reward advantage merely for using a provider.
 
 ## Per-episode replay
 
@@ -49,6 +54,8 @@ fallback_reason = None if action is not None else (
     cursor.reason if cursor else "no_matching_procedure"
 )
 if action is None:
+    if cursor and cursor.reason == "episode_finished":
+        break  # End the surrounding game loop; do not request another move.
     action = policy_choose_action(observation)  # teammate's River integration
     source = "policy"
 else:
@@ -58,6 +65,6 @@ else:
 
 These game-loop names are integration placeholders. Call `next_action` exactly once for each immediately attempted move: it advances the cursor when it returns an action. Do not call it for previews or advance it while waiting for inference. Create a new cursor per episode. If the environment rejects an action, record the failed outcome and stop using that cursor.
 
-The cursor stops permanently on `complete`, `layout_changed`, `topology_changed`, `position_diverged`, `illegal_action`, `ghost_nearby`, or `invalid_observation_or_procedure`. Its successful selection reason is `recalled_step`. Once stopped, call the policy on the current observation. Provider errors should be surfaced separately as `memory_unavailable`; an intentional local fallback must be labeled `provider: local`.
+The cursor stops permanently on `episode_finished`, `complete`, `layout_changed`, `topology_changed`, `position_diverged`, `illegal_action`, `ghost_nearby`, or `invalid_observation_or_procedure`. Its successful selection reason is `recalled_step`. On `episode_finished`, end the game loop rather than calling the policy. For other stops, call the policy on the current observation. Provider errors should be surfaced separately as `memory_unavailable`; an intentional local fallback must be labeled `provider: local`.
 
 For the viewer, record `source`, procedure ID, retrieval provider, cursor step, and `fallback_reason` per decision. Count actual policy calls and actual procedure actions, so a demo can show saved calls without inventing a performance gain.

@@ -31,12 +31,15 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         load_env(args.env_file)
-        client = gbrain_client()
+        needs_gbrain = (args.command == "doctor"
+                        or (args.command == "extract" and args.gbrain)
+                        or (args.command == "recall" and args.provider == "gbrain"))
+        client = gbrain_client() if needs_gbrain else None
         store = MemoryStore(args.memory_dir)
         if args.command == "doctor":
             hosted = isinstance(client, GBrainHTTPClient)
             result = {"memorable_key_configured": bool(os.getenv("MEMORABLE_API_KEY")),
-                      "memorable_live_verified": False, "gbrain_configured": client.available(),
+                      "live_check": "not_performed", "gbrain_configured": client.available(),
                       "gbrain_transport": "http_mcp" if hosted else "local_cli",
                       "local_procedures": len(store.procedures()),
                       "note": "Configuration only; live readiness requires an extraction and recall."}

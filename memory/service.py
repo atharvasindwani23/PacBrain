@@ -8,7 +8,8 @@ from pathlib import Path
 from .core import MemoryStore, extract_procedure, validate_procedure
 from .gbrain import GBrainClient, GBrainError
 from .gbrain_http import GBrainHTTPClient
-from .memorable import MemorableClient, MemorableError, game_trace_to_memorable, moves_from_draft
+from .memorable import (MemorableClient, MemorableError, game_trace_to_memorable,
+                        moves_from_draft, validate_extraction)
 
 
 def load_env(path=".env"):
@@ -56,7 +57,7 @@ def ingest(trace, store=None, extractor="memorable", memorable=None, gbrain=None
         # death sequence or later unrelated successful moves.
         selected = dict(trace, frames=trace["frames"][:len(procedure["steps"])])
         wire = game_trace_to_memorable(selected, max_steps=max_steps)
-        response = (memorable or MemorableClient.from_env()).extract_trace(wire)
+        response = validate_extraction((memorable or MemorableClient.from_env()).extract_trace(wire))
         moves = moves_from_draft(response["draft"])
         expected = [step["action"] for step in procedure["steps"]]
         if moves != expected:
@@ -67,17 +68,53 @@ def ingest(trace, store=None, extractor="memorable", memorable=None, gbrain=None
         raise ValueError("extractor must be memorable or local")
     # Save before indexing, so a temporary GBrain outage cannot lose the actual
     # extraction. Index errors propagate; they are never reported as success.
+    validate_recalled_procedure(procedure)
     path = store.save(procedure)
-    indexed = gbrain.import_directory(store.root) if gbrain else None
+    imported = gbrain.import_directory(store.root) if gbrain else None
+    search_verified = False
+    if gbrain:
+        rows = gbrain.search("Pac-Man " + procedure["layout"], limit=20)
+        search_verified = any(procedure["id"] in re.findall(r"(?<![a-f0-9])[a-f0-9]{16}(?![a-f0-9])",
+                                                             row.get("slug", ""))
+                              for row in rows if isinstance(row.get("slug"), str))
     return {"procedure_id": procedure["id"], "path": str(path), "steps": len(procedure["steps"]),
-            "extraction": procedure["extraction"], "gbrain_indexed": indexed is not None,
-            "gbrain_import": indexed}
+            "extraction": procedure["extraction"], "gbrain_stored": imported is not None,
+            "gbrain_search_verified": search_verified,
+            # Kept for existing callers; it now means observed search visibility.
+            "gbrain_indexed": search_verified, "gbrain_import": imported}
+
+
+def validate_recalled_procedure(procedure):
+    """Require a claimed Memorable extraction to retain matching evidence."""
+    validate_procedure(procedure)
+    method = procedure.get("extraction")
+    if method == "local_validated_trace":
+        if "memorable" in procedure["providers"]:
+            raise ValueError("Local procedure has an inconsistent Memorable provider receipt")
+        return procedure
+    if method != "memorable":
+        raise ValueError("Procedure is missing a supported extraction method")
+    if "memorable" not in procedure["providers"]:
+        raise ValueError("Memorable procedure is missing its provider receipt")
+    receipt = procedure["providers"]["memorable"]
+    try:
+        response = validate_extraction(receipt)
+        if not isinstance(response["request_id"], str) or not response["request_id"].strip():
+            raise ValueError("Memorable receipt is missing its request_id")
+        draft = response["draft"]
+        if "session_id" in draft and draft["session_id"] != procedure["source_episode"]:
+            raise ValueError("Memorable receipt belongs to another source episode")
+        if moves_from_draft(draft) != [step["action"] for step in procedure["steps"]]:
+            raise ValueError("Memorable receipt does not match the stored procedure actions")
+    except MemorableError as error:
+        raise ValueError("Memorable procedure has a malformed or refused provider receipt") from error
+    return procedure
 
 
 def recall_procedure(layout, observation=None, store=None, provider="gbrain", gbrain=None):
     store = store or MemoryStore()
     if provider == "local":
-        procedure = store.recall(layout, observation)
+        procedure = _recall_validated(store, layout, observation)
         return {"provider": "local", "procedure": procedure, "matches": []}
     if provider != "gbrain":
         raise ValueError("provider must be gbrain or local")
@@ -85,7 +122,7 @@ def recall_procedure(layout, observation=None, store=None, provider="gbrain", gb
     rows = client.search("Pac-Man " + layout, limit=20)
     # Only procedures explicitly returned by real GBrain retrieval are eligible.
     # No silent local fallback if search finds nothing or fails.
-    ids = set()
+    selected = {}
     # A different harness may have only the brain, not this checkout's JSON.
     # Hydrate canonical pages, never execute text from recalled memory.
     fetched_slugs = set()
@@ -103,14 +140,33 @@ def recall_procedure(layout, observation=None, store=None, provider="gbrain", gb
             continue
         for block in re.findall(r"```json\s*\n(.*?)\n```", content, flags=re.DOTALL):
             try:
-                recovered = validate_procedure(json.loads(block))
+                recovered = validate_recalled_procedure(json.loads(block))
             except (ValueError, TypeError):
                 continue
-            if recovered["id"] in matching and recovered["layout"] == layout and recovered["id"] not in ids:
-                # Immutable hosted versions can share one procedure id. Keep
-                # the first validated version in search rank order, including
-                # its provider receipt; later versions must not overwrite it.
-                store.save(recovered)
-                ids.add(recovered["id"])
-    procedure = store.recall(layout, observation, allowed_ids=ids)
+            if recovered["id"] in matching and recovered["layout"] == layout:
+                previous = selected.get(recovered["id"])
+                # Prefer verified provider evidence over a local extraction of
+                # the same opening; preserve search rank within each method.
+                if previous is None or (previous["extraction"] == "local_validated_trace"
+                                        and recovered["extraction"] == "memorable"):
+                    selected[recovered["id"]] = recovered
+    # Publish only the selected versions, without temporarily downgrading an
+    # existing cached provider receipt while walking ranked search results.
+    for recovered in selected.values():
+        store.save(recovered)
+    procedure = _recall_validated(store, layout, observation, set(selected), list(selected))
     return {"provider": "gbrain", "procedure": procedure, "matches": rows}
+
+
+def _recall_validated(store, layout, observation, allowed_ids=None, rank_order=None):
+    """Apply the same provenance contract to cached and newly hydrated data."""
+    eligible = set(allowed_ids) if allowed_ids is not None else {p["id"] for p in store.procedures()}
+    while eligible:
+        procedure = store.recall(layout, observation, allowed_ids=eligible, rank_order=rank_order)
+        if procedure is None:
+            return None
+        try:
+            return validate_recalled_procedure(procedure)
+        except ValueError:
+            eligible.discard(procedure["id"])
+    return None

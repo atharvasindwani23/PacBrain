@@ -93,6 +93,75 @@ class MemoryEdgeTests(unittest.TestCase):
         source["frames"][1]["action_ok"] = False
         self.assertEqual(len(extract_procedure(source)["steps"]), 1)
 
+    def test_terminal_flags_stop_cursor_without_consuming_a_move(self):
+        source = corridor_trace()
+        for flag in ("died", "terminal", "cleared"):
+            with self.subTest(flag=flag):
+                cursor = ProcedureCursor(extract_procedure(source))
+                observation = dict(source["frames"][0], **{flag: True})
+                self.assertIsNone(cursor.next_action(observation, "testCorridor"))
+                self.assertEqual(cursor.index, 0)
+                self.assertEqual(cursor.reason, "episode_finished")
+                self.assertIsNone(cursor.next_action(source["frames"][0], "testCorridor"))
+
+    def test_malformed_terminal_flags_abort_cursor(self):
+        source = corridor_trace()
+        for flag in ("died", "terminal", "cleared"):
+            for value in (0, 1, "false", None):
+                with self.subTest(flag=flag, value=value):
+                    cursor = ProcedureCursor(extract_procedure(source))
+                    self.assertIsNone(cursor.next_action(dict(source["frames"][0], **{flag: value})))
+                    self.assertEqual(cursor.reason, "invalid_observation_or_procedure")
+                    self.assertEqual(cursor.index, 0)
+
+    def test_malformed_action_outcome_is_not_learned(self):
+        for value in (0, 1, "false", None):
+            with self.subTest(value=value):
+                source = empty_corridor_trace([0, 9, 18])
+                source["frames"][0]["action_ok"] = value
+                with self.assertRaises(ValueError):
+                    extract_procedure(source)
+
+    def test_malformed_result_flag_is_rejected(self):
+        source = corridor_trace()
+        source["result"]["died"] = "false"
+        with self.assertRaisesRegex(ValueError, "boolean"):
+            extract_procedure(source)
+
+    def test_malformed_synthetic_flag_cannot_become_real(self):
+        source = corridor_trace()
+        source["synthetic"] = "true"
+        with self.assertRaisesRegex(ValueError, "boolean"):
+            extract_procedure(source)
+
+    def test_last_successful_move_into_cleared_terminal_can_be_learned(self):
+        source = empty_corridor_trace([0, 9])
+        terminal = source["frames"].pop()
+        terminal.pop("action")
+        terminal.update(terminal=True, cleared=True)
+        source["terminal_observation"] = terminal
+        source["result"].update(terminal=True, cleared=True)
+        self.assertEqual(len(extract_procedure(source)["steps"]), 1)
+
+    def test_no_new_action_is_learned_from_terminal_start(self):
+        for flag in ("died", "terminal", "cleared"):
+            with self.subTest(flag=flag):
+                source = empty_corridor_trace([0, 9])
+                source["frames"][0][flag] = True
+                with self.assertRaises(ValueError):
+                    extract_procedure(source)
+
+    def test_positive_prefix_survives_lossy_route_ending_at_a_pellet(self):
+        # Two +9 pellets separated by twenty -1 moves leave total reward -2.
+        scores = [0, 9] + list(range(8, -12, -1)) + [-2]
+        procedure = extract_procedure(empty_corridor_trace(scores))
+        self.assertEqual(len(procedure["steps"]), 9)
+        self.assertEqual(procedure["observed_reward"], 1)
+
+    def test_positive_full_opening_is_not_shortened(self):
+        source = empty_corridor_trace([0, 9, 8, 7, 16])
+        self.assertEqual(len(extract_procedure(source)["steps"]), 4)
+
     def test_nonfinite_or_too_small_danger_distances_are_rejected(self):
         for distance in (-1, 0, 1, True, float("nan"), float("inf")):
             with self.subTest(distance=distance), self.assertRaises(ValueError):

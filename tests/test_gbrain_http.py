@@ -1,3 +1,4 @@
+import hashlib
 import io
 import json
 import tempfile
@@ -77,6 +78,14 @@ class HTTPMemoryTests(unittest.TestCase):
         with patch.object(c, "_call_tool", return_value=[{"slug": "people/private-note"}, {"slug": "pacman-memory/abc"}]):
             self.assertEqual(c.search("corridor"), [{"slug": "pacman-memory/abc"}])
 
+    def test_search_overfetches_before_namespace_filter_and_result_limit(self):
+        c = self.client()
+        rows = [{"slug": "people/private-note"}, {"slug": "pacman-memory/first"},
+                {"slug": "pacman-memory/second"}]
+        with patch.object(c, "_call_tool", return_value=rows) as call:
+            self.assertEqual(c.search("corridor", limit=1), [{"slug": "pacman-memory/first"}])
+        call.assert_called_once_with("search", {"query": "pacman-memory corridor", "limit": 100})
+
     def test_tool_absence_is_not_reported_as_empty_memory(self):
         c = self.client()
         with patch.object(c, "discover_tools", return_value={}):
@@ -121,6 +130,46 @@ class HTTPMemoryTests(unittest.TestCase):
                 with self.assertRaisesRegex(GBrainError, "not owned"):
                     c.import_directory(folder)
                 call.assert_not_called()
+
+    def test_get_page_checks_body_hash_not_only_metadata(self):
+        c = self.client()
+        body = "# Original\nRecorded procedure.\n"
+        digest = hashlib.sha256(body.encode()).hexdigest()
+        slug = "pacman-memory/aabbccddeeff0011-v-" + digest[:12]
+        metadata = {"pacman_memory": True, "pacman_payload_sha256": digest}
+        page = {"frontmatter": metadata,
+                "content": "---\ntitle: A\ntype: note\n---\n\npacman-memory\n\n" + body}
+        with patch.object(c, "_call_tool", return_value=page):
+            self.assertEqual(c.get_page(slug), page)
+            page["content"] = page["content"].replace("Recorded procedure.", "Changed procedure.")
+            with self.assertRaisesRegex(GBrainError, "does not match"):
+                c.get_page(slug)
+
+    def test_import_does_not_skip_wrong_content_with_matching_metadata(self):
+        c = self.client()
+        c._tools = {"get_page": {}, "put_page": {}}
+        body = "# Correct opening\n"
+        digest = hashlib.sha256(body.encode()).hexdigest()
+        wrong = {"frontmatter": {"pacman_memory": True, "pacman_payload_sha256": digest},
+                 "content": "---\ntype: note\n---\n\npacman-memory\n\n# Incorrect opening\n"}
+        with tempfile.TemporaryDirectory() as folder:
+            Path(folder, "aabbccddeeff0011.md").write_text(body)
+            with patch.object(c, "discover_tools", return_value=c._tools), patch.object(c, "get_page", return_value=wrong):
+                with self.assertRaisesRegex(GBrainError, "content differs"):
+                    c.import_directory(folder)
+
+    def test_import_verifies_actual_content_after_write(self):
+        c = self.client()
+        c._tools = {"get_page": {}, "put_page": {}}
+        body = "# Correct opening\n"
+        digest = hashlib.sha256(body.encode()).hexdigest()
+        wrong = {"frontmatter": {"pacman_memory": True, "pacman_payload_sha256": digest},
+                 "content": "pacman-memory\n\n# Stale opening\n"}
+        with tempfile.TemporaryDirectory() as folder:
+            Path(folder, "aabbccddeeff0011.md").write_text(body)
+            with patch.object(c, "discover_tools", return_value=c._tools), patch.object(c, "_call_tool", return_value={}), patch.object(c, "get_page", side_effect=[_ToolFailure("page_not_found"), wrong]):
+                with self.assertRaisesRegex(GBrainError, "has not published"):
+                    c.import_directory(folder)
 
 
 if __name__ == "__main__":

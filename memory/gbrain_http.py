@@ -202,13 +202,16 @@ class GBrainHTTPClient:
             return []
         if type(limit) is not int or not 1 <= limit <= 100:
             raise ValueError("limit must be an integer between 1 and 100")
-        result = self._call_tool("search", {"query": self.namespace + " " + query, "limit": limit})
+        # Ask for a bounded candidate pool before excluding unrelated memory.
+        # The hosted provider has also returned newly saved pages at a wider
+        # limit while omitting them from the same query with limit 20.
+        result = self._call_tool("search", {"query": self.namespace + " " + query, "limit": 100})
         rows = result.get("results") if isinstance(result, dict) else result
         if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
             raise GBrainError("GBrain search returned an unexpected result shape.")
         # Never hydrate unrelated workspace memory, even if search ranks it.
         return [row for row in rows if isinstance(row.get("slug"), str)
-                and row["slug"].startswith(self.namespace + "/")]
+                and row["slug"].startswith(self.namespace + "/")][:limit]
 
     def get_page(self, slug):
         if (not isinstance(slug, str) or not slug.startswith(self.namespace + "/")
@@ -217,7 +220,31 @@ class GBrainHTTPClient:
         result = self._call_tool("get_page", {"slug": slug, "include_content": True})
         if not isinstance(result, dict) or not isinstance(result.get("content"), str):
             raise GBrainError("GBrain get_page did not return canonical Markdown content.")
+        payload = self._canonical_payload(result)
+        metadata = result.get("frontmatter", {})
+        digest = metadata.get("pacman_payload_sha256") if isinstance(metadata, dict) else None
+        if (not isinstance(metadata, dict) or metadata.get("pacman_memory") is not True
+                or not isinstance(digest, str) or not re.fullmatch(r"[a-f0-9]{64}", digest)):
+            raise GBrainError("GBrain page is missing the Pac-Man app's integrity metadata.")
+        if hashlib.sha256(payload.encode("utf-8")).hexdigest() != digest or not slug.endswith("-v-" + digest[:12]):
+            raise GBrainError("GBrain page content does not match its recorded payload or immutable version.")
         return result
+
+    def _canonical_payload(self, page):
+        """Read body bytes independent of canonical YAML key ordering."""
+        content = page.get("content")
+        if not isinstance(content, str):
+            raise GBrainError("GBrain page has no canonical Markdown content.")
+        content = content.replace("\r\n", "\n")
+        if content.startswith("---\n"):
+            _, separator, content = content.partition("\n---\n")
+            if not separator:
+                raise GBrainError("GBrain page has malformed canonical frontmatter.")
+            content = content.lstrip("\n")
+        prefix = self.namespace + "\n\n"
+        if not content.startswith(prefix):
+            raise GBrainError("GBrain page is missing the Pac-Man payload marker.")
+        return content[len(prefix):]
 
     def import_directory(self, directory):
         directory = Path(directory).expanduser().resolve()
@@ -258,6 +285,8 @@ class GBrainHTTPClient:
                 if not isinstance(metadata, dict) or metadata.get("pacman_memory") is not True:
                     raise GBrainError("An existing hosted page at this slug is not owned by the Pac-Man app; refusing to overwrite it.")
                 if metadata.get("pacman_payload_sha256") == digest:
+                    if self._canonical_payload(previous) != body:
+                        raise GBrainError("Existing GBrain page content differs from the requested payload; refusing to report a successful import.")
                     skipped += 1
                     continue
                 raise GBrainError("An existing hosted page differs from this content-addressed version; refusing to overwrite it.")
@@ -266,7 +295,9 @@ class GBrainHTTPClient:
             # content is required before reporting a successful import.
             verified = self.get_page(slug)
             metadata = verified.get("frontmatter", {})
-            if not isinstance(metadata, dict) or metadata.get("pacman_payload_sha256") != digest:
+            if (not isinstance(metadata, dict) or metadata.get("pacman_memory") is not True
+                    or metadata.get("pacman_payload_sha256") != digest
+                    or self._canonical_payload(verified) != body):
                 raise GBrainError("GBrain has not published the requested page content yet. Retry the same import to recover its outcome.")
             imported += 1
         return {"status": "success", "imported": imported, "skipped": skipped,

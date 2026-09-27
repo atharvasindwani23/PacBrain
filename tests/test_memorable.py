@@ -2,6 +2,9 @@ import io
 import json
 import unittest
 import urllib.error
+import urllib.request
+import urllib.response
+from email.message import Message
 from unittest.mock import patch
 
 from memory.memorable import (MemorableClient, MemorableError, MemorableRefused,
@@ -25,10 +28,31 @@ def trace():
 
 
 class MemorableTests(unittest.TestCase):
+    def test_redirect_never_sends_the_bearer_token_to_another_host(self):
+        headers = Message()
+        headers["Location"] = "https://different-host.example/extract"
+        redirected = urllib.response.addinfourl(
+            io.BytesIO(b""), headers, "https://example.com/v1/extract", 302)
+        redirected.msg = "Found"
+        with patch("urllib.request.HTTPSHandler.https_open", return_value=redirected) as transport:
+            with self.assertRaisesRegex(MemorableError, "HTTP 302"):
+                MemorableClient("mk_secret", base_url="https://example.com").extract_trace(
+                    game_trace_to_memorable(trace()))
+        self.assertEqual(transport.call_count, 1)
+        self.assertEqual(transport.call_args[0][0].full_url, "https://example.com/v1/extract")
+
+    def test_expansion_is_bounded_before_allocating_repeated_moves(self):
+        for count in (2001, 10**30):
+            with self.subTest(count=count):
+                draft = response()["draft"]
+                draft["steps"][0]["repeat_count"] = count
+                with self.assertRaisesRegex(MemorableError, "move replay limit"):
+                    moves_from_draft(draft)
+
     def test_uses_real_response_and_allowlisted_request(self):
         outgoing = game_trace_to_memorable(trace())
         outgoing["credentials"] = "do-not-send"
-        with patch("urllib.request.urlopen", return_value=io.BytesIO(json.dumps(response()).encode())) as open_url:
+        with patch("urllib.request.OpenerDirector.open", return_value=io.BytesIO(json.dumps(response()).encode())) as open_url:
             result = MemorableClient("mk_test").extract_trace(outgoing)
         request = open_url.call_args[0][0]
         sent = json.loads(request.data)
@@ -49,12 +73,12 @@ class MemorableTests(unittest.TestCase):
 
     def test_200_refusal_is_not_success(self):
         refused = dict(response(), refused="allowance_exhausted")
-        with patch("urllib.request.urlopen", return_value=io.BytesIO(json.dumps(refused).encode())):
+        with patch("urllib.request.OpenerDirector.open", return_value=io.BytesIO(json.dumps(refused).encode())):
             with self.assertRaises(MemorableRefused):
                 MemorableClient("mk_test").extract_trace(game_trace_to_memorable(trace()))
 
     def test_missing_key_never_calls_service(self):
-        with patch.dict("os.environ", {}, clear=True), patch("urllib.request.urlopen") as open_url:
+        with patch.dict("os.environ", {}, clear=True), patch("urllib.request.OpenerDirector.open") as open_url:
             with self.assertRaises(MemorableError):
                 MemorableClient().extract_trace(game_trace_to_memorable(trace()))
             open_url.assert_not_called()
@@ -62,7 +86,7 @@ class MemorableTests(unittest.TestCase):
     def test_http_error_does_not_print_server_detail_or_key(self):
         error = urllib.error.HTTPError("https://example.com", 401, "Unauthorized", {},
                                        io.BytesIO(b'{"error":"unauthorized","detail":"mk_secret"}'))
-        with patch("urllib.request.urlopen", side_effect=error):
+        with patch("urllib.request.OpenerDirector.open", side_effect=error):
             with self.assertRaises(MemorableError) as raised:
                 MemorableClient("mk_secret").extract_trace(game_trace_to_memorable(trace()))
         self.assertEqual(str(raised.exception), "Memorable HTTP 401: unauthorized")

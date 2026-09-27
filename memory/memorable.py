@@ -28,6 +28,12 @@ class MemorableRefused(MemorableError):
     """A refusal must not be persisted or retried automatically."""
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, *args, **kwargs):
+        # Never forward the extraction bearer token to a redirect destination.
+        return None
+
+
 def _safe_label(value: Any) -> str:
     if not isinstance(value, str):
         return "unknown"
@@ -118,6 +124,7 @@ class MemorableClient:
             raise ValueError("MEMORABLE_API_URL must be a credential-free HTTPS URL")
         if timeout <= 0:
             raise ValueError("Memorable timeout must be positive")
+        self._opener = urllib.request.build_opener(_NoRedirect())
 
     @classmethod
     def from_env(cls, timeout: float = 20) -> "MemorableClient":
@@ -137,7 +144,7 @@ class MemorableClient:
                                                   "User-Agent": "PacmanMemory/1.0 (+https://www.memorable.sh/docs/integrate)"},
                                          method="POST")
         try:
-            with urllib.request.urlopen(request, timeout=self.timeout) as reply:
+            with self._opener.open(request, timeout=self.timeout) as reply:
                 raw = reply.read(MAX_BODY_BYTES + 1)
         except urllib.error.HTTPError as exc:
             # Server detail can echo user input. Only expose a safe status and code.
@@ -196,7 +203,8 @@ def moves_from_draft(draft: Dict[str, Any]) -> list:
         match = re.fullmatch(r"pacman\.step --action ([NSEW])", step.get("command", ""))
         if not match:
             raise MemorableError("Extracted draft contains an unsupported game command")
-        moves.extend([match.group(1)] * step.get("repeat_count", 1))
-        if len(moves) > 2000:
+        count = step.get("repeat_count", 1)
+        if count > 2000 - len(moves):
             raise MemorableError("Extracted draft exceeds the move replay limit")
+        moves.extend([match.group(1)] * count)
     return moves

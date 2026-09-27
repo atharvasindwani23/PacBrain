@@ -7,13 +7,16 @@ use the game's own coordinate convention; distance checks use grid cells.
 import hashlib
 import json
 import math
+import os
 import re
+import tempfile
 from collections import deque
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 ACTIONS = {"N", "S", "E", "W"}
 DELTAS = {"N": (0, -1), "S": (0, 1), "E": (1, 0), "W": (-1, 0)}
+EPISODE_FLAGS = ("died", "terminal", "cleared")
 
 
 def _finite_number(value):
@@ -28,6 +31,36 @@ def _finite_number(value):
 def _validate_danger_distance(value):
     if not _finite_number(value) or value < 2:
         raise ValueError("danger_distance must be finite and at least 2")
+
+
+def _validate_optional_flags(record, flags):
+    if not isinstance(record, dict):
+        raise ValueError("observation must be an object")
+    for flag in flags:
+        if flag in record and type(record[flag]) is not bool:
+            raise ValueError(flag + " must be a boolean when provided")
+
+
+def _episode_finished(observation):
+    _validate_optional_flags(observation, EPISODE_FLAGS)
+    return any(observation.get(flag) is True for flag in EPISODE_FLAGS)
+
+
+def _atomic_write_text(path, content):
+    """Publish one complete file with a distinct staging file per caller."""
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=str(path.parent),
+                                         prefix="." + path.name + ".", suffix=".tmp", delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(content)
+        os.replace(str(temporary), str(path))
+    finally:
+        if temporary is not None:
+            try:
+                temporary.unlink()
+            except FileNotFoundError:
+                pass
 
 
 def validate_procedure(procedure):
@@ -146,6 +179,8 @@ def extract_procedure(trace, max_steps=40, danger_distance=2):
         raise ValueError("memory requires pre_action frames; convert post-action traces first")
     if not isinstance(trace.get("result", {}), dict):
         raise ValueError("trace result must be an object")
+    _validate_optional_flags(trace.get("result", {}), EPISODE_FLAGS)
+    _validate_optional_flags(trace, ("synthetic",))
     frames = trace.get("frames", [])
     if not isinstance(frames, list) or not frames:
         raise ValueError("trace contains no frames")
@@ -159,6 +194,13 @@ def extract_procedure(trace, max_steps=40, danger_distance=2):
             break
         following = observations[index + 1]
         if not isinstance(frame, dict) or not isinstance(following, dict):
+            break
+        try:
+            _validate_optional_flags(frame, ("action_ok",) + EPISODE_FLAGS)
+            _validate_optional_flags(following, EPISODE_FLAGS)
+            if _episode_finished(frame):
+                break
+        except ValueError:
             break
         action = frame.get("action")
         if not isinstance(action, str):
@@ -196,8 +238,17 @@ def extract_procedure(trace, max_steps=40, danger_distance=2):
         steps.append({"action": action, "position": [x, y], "next_position": list(next_position),
                       "score_delta": reward})
     reward = sum(step["score_delta"] for step in steps)
-    while steps and reward <= 0 and steps[-1]["score_delta"] <= 0:
-        reward -= steps.pop()["score_delta"]
+    if reward <= 0:
+        # A later pellet can follow a long costly detour. Removing only a
+        # negative suffix misses a useful earlier opening when the last delta
+        # happens to be positive, so locate the last positive prefix directly.
+        cumulative, positive_prefix = 0, 0
+        for index, step in enumerate(steps):
+            cumulative += step["score_delta"]
+            if cumulative > 0:
+                positive_prefix = index + 1
+        steps = steps[:positive_prefix]
+        reward = sum(step["score_delta"] for step in steps)
     if not steps or reward <= 0:
         raise ValueError("no positively rewarded, safe contiguous opening in this trace")
     identity = {"episode": trace["episode_id"], "layout": trace["layout"], "steps": steps}
@@ -228,7 +279,9 @@ class ProcedureCursor:
         try:
             validate_procedure(self.procedure)
             steps = self.procedure["steps"]
-            if self.index >= len(steps):
+            if _episode_finished(observation):
+                reason = "episode_finished"
+            elif self.index >= len(steps):
                 reason = "complete"
             elif layout is not None and layout != self.procedure["layout"]:
                 reason = "layout_changed"
@@ -264,14 +317,13 @@ class MemoryStore:
         validate_procedure(procedure)
         self.root.mkdir(parents=True, exist_ok=True)
         path = self.root / (procedure["id"] + ".json")
-        temporary = path.with_suffix(".json.tmp")
-        temporary.write_text(json.dumps(procedure, indent=2) + "\n")
-        temporary.replace(path)
+        payload = json.dumps(procedure, indent=2)
+        _atomic_write_text(path, payload + "\n")
         markdown = self.root / (procedure["id"] + ".md")
-        markdown.write_text("# Pac-Man procedure: " + procedure["layout"] + "\n\n"
+        _atomic_write_text(markdown, "# Pac-Man procedure: " + procedure["layout"] + "\n\n"
                             + "Source episode: " + str(procedure["source_episode"]) + "\n\n"
                             + "Observed opening; recheck position, legality and ghost proximity before every step.\n\n"
-                            + "```json\n" + json.dumps(procedure, indent=2) + "\n```\n")
+                            + "```json\n" + payload + "\n```\n")
         return path
 
     def procedures(self):
@@ -286,10 +338,12 @@ class MemoryStore:
                 continue
         return procedures
 
-    def recall(self, layout, observation=None, allowed_ids=None):
+    def recall(self, layout, observation=None, allowed_ids=None, rank_order=None):
         candidates = [p for p in self.procedures() if p["layout"] == layout
                       and (allowed_ids is None or p["id"] in allowed_ids)]
-        candidates.sort(key=lambda p: (p["observed_reward"], len(p["steps"])), reverse=True)
+        ranks = {pid: index for index, pid in enumerate(rank_order or [])}
+        candidates.sort(key=lambda p: (p["observed_reward"], len(p["steps"]),
+                                       -ranks.get(p["id"], len(ranks))), reverse=True)
         for procedure in candidates:
             if observation is None or ProcedureCursor(procedure).next_action(observation, layout) is not None:
                 return procedure

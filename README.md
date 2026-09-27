@@ -60,6 +60,6 @@ python3 -m memory extract examples/synthetic_trace.json --extractor local
 python3 -m memory recall --layout testCorridor --provider local
 ```
 
-These are development checks, not evidence of Memorable usage. The stored envelope records `extraction` and provider receipts; the CLI reports `gbrain_indexed` and retrieval `provider` separately.
+These are development checks, not evidence of Memorable usage. The stored envelope records `extraction` and provider receipts. Ingestion reports `gbrain_stored` separately from `gbrain_search_verified`; `gbrain_indexed` is an alias for verified search visibility. Retrieval reports its actual `provider`.
 
-Implementation details: [trace and replay contract](contract.md), [GBrain setup](docs/gbrain.md), [Memorable API](docs/memorable.md), [QM handoff](docs/qm-handoff.md).
+Implementation details: [trace and replay contract](contract.md), [GBrain setup](docs/gbrain.md), [Memorable API](docs/memorable.md), [QM handoff](docs/qm-handoff.md), [verified setup status](docs/setup-status.md).
