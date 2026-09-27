@@ -1,0 +1,14 @@
+{
+  "episode_id": "synthetic-corridor-demo",
+  "synthetic": true,
+  "observation_timing": "pre_action",
+  "layout": "testCorridor",
+  "seed": 1,
+  "condition": "before",
+  "frames": [
+    {"grid": "%%%%%%%%%\n%P.... G%\n%%%%%%%%%", "pacman": [1, 1], "ghosts": [[7, 1]], "scared": [false], "score": 0, "action": "E", "action_ok": true, "source": "policy"},
+    {"grid": "%%%%%%%%%\n% P...G %\n%%%%%%%%%", "pacman": [2, 1], "ghosts": [[6, 1]], "scared": [false], "score": 9, "action": "E", "action_ok": true, "source": "policy"},
+    {"grid": "%%%%%%%%%\n%  P.G  %\n%%%%%%%%%", "pacman": [3, 1], "ghosts": [[5, 1]], "scared": [false], "score": 18, "action": "W", "action_ok": true, "source": "policy"}
+  ],
+  "result": {"score": 17, "cleared": false, "died": false, "turns": 3, "llm_calls": 1, "procedure_steps": 0}
+}

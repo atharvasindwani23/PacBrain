@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+.venv/
+.venv-modal/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.tools/
+.runtime/
+data/
+traces/
+node_modules/
+.DS_Store
