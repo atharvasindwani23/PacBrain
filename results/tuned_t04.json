@@ -1,0 +1,79 @@
+{
+  "label": "tuned_t04",
+  "games": 10,
+  "avg_score": -258.4,
+  "win_rate": 0.0,
+  "illegal_move_rate": 0.0,
+  "per_game": [
+    {
+      "seed": 2000,
+      "score": -231,
+      "win": false,
+      "moves": 41,
+      "illegal": 0
+    },
+    {
+      "seed": 2001,
+      "score": -140,
+      "win": false,
+      "moves": 50,
+      "illegal": 0
+    },
+    {
+      "seed": 2002,
+      "score": -344,
+      "win": false,
+      "moves": 24,
+      "illegal": 0
+    },
+    {
+      "seed": 2003,
+      "score": -288,
+      "win": false,
+      "moves": 28,
+      "illegal": 0
+    },
+    {
+      "seed": 2004,
+      "score": -298,
+      "win": false,
+      "moves": 28,
+      "illegal": 0
+    },
+    {
+      "seed": 2005,
+      "score": -297,
+      "win": false,
+      "moves": 27,
+      "illegal": 0
+    },
+    {
+      "seed": 2006,
+      "score": -308,
+      "win": false,
+      "moves": 28,
+      "illegal": 0
+    },
+    {
+      "seed": 2007,
+      "score": -342,
+      "win": false,
+      "moves": 22,
+      "illegal": 0
+    },
+    {
+      "seed": 2008,
+      "score": -99,
+      "win": false,
+      "moves": 139,
+      "illegal": 0
+    },
+    {
+      "seed": 2009,
+      "score": -237,
+      "win": false,
+      "moves": 47,
+      "illegal": 0
+    }
+  ]
+}
