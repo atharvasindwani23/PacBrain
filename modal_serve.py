@@ -48,3 +48,19 @@ def serve_tuned():
             list(checkpoint.glob("*.safetensors")) or list(checkpoint.glob("pytorch_model*.bin"))):
         raise RuntimeError("No merged checkpoint at /vol/tuned; finish training and commit the volume first")
     _launch("/vol/tuned", "pacman")
+
+
+@app.function(image=image, gpu="A10G", volumes={"/vol": vol},
+              scaledown_window=600, timeout=3600)
+@modal.concurrent(max_inputs=32)
+@modal.web_server(port=PORT, startup_timeout=600)
+def serve_rl():
+    _launch("/vol/rl", "pacman")
+
+
+@app.function(image=image, gpu="A10G", volumes={"/vol": vol},
+              scaledown_window=600, timeout=3600)
+@modal.concurrent(max_inputs=32)
+@modal.web_server(port=PORT, startup_timeout=600)
+def serve_rl2():
+    _launch("/vol/rl2", "pacman")

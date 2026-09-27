@@ -19,6 +19,30 @@ BOARD = "classic-small"
 SEEDS = list(range(2000, 2100))
 
 
+def decode_events(timeline, final_score, win):
+    """Decode game events from the per-move score timeline.
+    Per pacman move: -1 time step, +10 per pellet, +200 per ghost eaten,
+    +500 board clear, -500 caught."""
+    out = {"pellets": 0, "ghosts_eaten": 0, "died": 0}
+    if not timeline:
+        return out
+    diffs = [b - a for a, b in zip(timeline, timeline[1:])]
+    if final_score is not None:
+        diffs.append(final_score - timeline[-1])
+    for d in diffs:
+        if d <= -400:
+            out["died"] = 1
+            d += 500
+        if win and d >= 400:
+            d -= 500
+        if d >= 190:
+            out["ghosts_eaten"] += (d + 1) // 200
+            d = (d + 1) % 200 - 1
+        if d > 0:
+            out["pellets"] += (d + 1) // 10
+    return out
+
+
 def run_game(args):
     seed, endpoint, label, gif, provider, memory_dir, board, trace_dir = args
     stats_path = os.path.join(ROOT, "results", f"{label}_stats_{seed}.jsonl")
@@ -54,8 +78,11 @@ def run_game(args):
             recorded = json.load(stream)
     procedure_steps = (recorded["result"]["procedure_steps"] if recorded else 0)
     gif_ready = gif and gif_path.is_file() and gif_path.stat().st_size > 0
+    timeline = [row["score"] for row in rows if "score" in row]
+    events = decode_events(timeline, score, win)
     return {"seed": seed, "score": score, "win": win,
             "moves": len(rows), "illegal": sum(row["illegal"] for row in rows),
+            **events,
             "policy_calls": sum(row.get("policy_called", True) for row in rows),
             "procedure_steps": procedure_steps,
             "fallback_steps": sum(row.get("source") == "fallback" for row in rows),
@@ -118,6 +145,10 @@ def main(argv=None):
                "avg_score": sum(scores) / len(scores) if scores else None,
                "win_rate": sum(game["win"] for game in completed) / len(completed) if completed else None,
                "illegal_move_rate": sum(game["illegal"] for game in games) / max(moves, 1),
+               "pellets": sum(game.get("pellets", 0) for game in games),
+               "ghosts_eaten": sum(game.get("ghosts_eaten", 0) for game in games),
+               "deaths": sum(game.get("died", 0) for game in games),
+               "avg_survival_moves": moves / max(len(games), 1),
                "policy_calls": sum(game["policy_calls"] for game in games),
                "procedure_steps": sum(game["procedure_steps"] for game in games),
                "fallback_steps": sum(game["fallback_steps"] for game in games),

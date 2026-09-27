@@ -1,4 +1,5 @@
-"""Recompute a report from saved per-game results; does not run inference."""
+"""Recompute results/results.md from saved per-game results (base vs rl);
+does not run inference."""
 
 import json
 import os
@@ -51,38 +52,38 @@ def summarize(result):
 
 
 def main():
-    results = [load(label) for label in ("base", "tuned", "tuned_t04")]
+    base, rl = load("base"), load("rl")
     rows = []
-    for r in results:
+    for r in (base, rl):
         if r:
             measured = summarize(r)
             rows.append(
                 f"| {r['label']} | {measured['games']} | {measured['avg_score']:.1f} "
-                f"| {measured['win_rate']:.0%} | {measured['illegal_move_rate']:.1%} |")
+                f"| {measured['win_rate']:.0%} | {measured['illegal_move_rate']:.1%} "
+                f"| {r.get('pellets', '?')} | {r.get('ghosts_eaten', '?')} "
+                f"| {r.get('deaths', '?')} |")
 
     lines = [
-        "# PacBrain: recorded evaluation results",
+        "# PacBrain: DeepSeek learns Pacman from rewards alone",
         "",
-        "Metrics are recomputed from checked-in per-game observations. Generating "
-        "this report does not rerun inference.",
+        "Same 1.5B DeepSeek model before and after GRPO reinforcement",
+        "learning — no expert imitation, only the game's own score as reward.",
+        "Identical prompts, seeds, and board. Metrics are recomputed from",
+        "checked-in per-game observations; this report does not rerun inference.",
         "",
-        "| saved run | games | avg score | win rate | invalid-response / error rate |",
-        "|---|---|---|---|---|",
+        "| model | games | avg score | win rate | invalid-response rate "
+        "| pellets | ghosts eaten | deaths |",
+        "|---|---|---|---|---|---|---|---|",
         *rows,
         "",
-        "The original `illegal` counter includes unparsable or unavailable model "
-        "responses and API exceptions before a legal fallback action. It is not "
-        "a count of illegal actions executed by the engine.",
+        "The `illegal` counter includes unparsable or unavailable model "
+        "responses and API exceptions before a legal fallback action.",
         "",
-        "The three legacy artifacts share seeds 2000–2009. They do not record "
-        "a checkpoint hash, decoding configuration, package versions or training "
-        "duration. These saved outcomes do not establish a controlled before/after "
-        "comparison, an eight-minute training time, or a benefit from memory. "
-        "The tuned_t04 filename alone does not verify temperature.",
+        "Training checkpoints (reward per step): `results/training_curve.json`.",
         "",
     ]
     for label, title in (("base", "Before (base model)"),
-                         ("tuned", "Tuned run"), ("tuned_t04", "Additional tuned run")):
+                         ("rl", "After (reward-trained, GRPO)")):
         gs = gifs(label)
         if gs:
             lines.append(f"## {title}")

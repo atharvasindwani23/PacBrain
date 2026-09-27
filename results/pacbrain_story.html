@@ -1,0 +1,321 @@
+<title>PacBrain — a 1.5B model learns Pacman from rewards alone</title>
+<style>
+  :root {
+    --maze: #0B0B14;
+    --panel: #12121F;
+    --panel-2: #171729;
+    --wall: #2438A8;
+    --wall-dim: #1B2A6B;
+    --ink: #EAEAF2;
+    --ink-2: #9C9CB0;
+    --ink-3: #6A6A80;
+    --pac: #AD920D;
+    --pac-bright: #FFD21F;
+    --ghost: #CE515A;
+    --ghost-bright: #FF4F58;
+    --blinky: #FF4F58; --pinky: #FFB8DE; --inky: #00FFDE; --clyde: #FFB847;
+    --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  html { background: var(--maze); }
+  body {
+    background: var(--maze); color: var(--ink); font-family: var(--sans);
+    margin: 0; padding: 0 20px 80px; line-height: 1.55;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+
+  header { padding: 56px 0 8px; text-align: center; }
+  .marquee {
+    font-family: var(--mono); font-size: clamp(26px, 5vw, 44px); font-weight: 700;
+    letter-spacing: 0.06em; color: var(--pac-bright); margin: 0; text-wrap: balance;
+  }
+  .marquee .ghost-word { color: var(--ghost-bright); }
+  .sub { color: var(--ink-2); max-width: 60ch; margin: 14px auto 0; font-size: 16px; }
+  .dots {
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    margin: 26px auto 6px; height: 20px;
+  }
+  .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--pac-bright); opacity: .85; }
+  .dots .pacman {
+    width: 18px; height: 18px; border-radius: 50%; background: var(--pac-bright);
+    clip-path: polygon(100% 74%, 50% 50%, 100% 26%, 100% 0, 0 0, 0 100%, 100% 100%);
+  }
+  .dots .sprite { font-size: 16px; line-height: 1; }
+
+  .eyebrow {
+    font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.22em;
+    font-size: 12px; color: var(--ink-3); margin: 64px 0 6px;
+  }
+  h2 {
+    font-family: var(--mono); font-size: 22px; letter-spacing: 0.02em;
+    margin: 0 0 10px; color: var(--ink); text-wrap: balance;
+  }
+  p.lede { color: var(--ink-2); max-width: 68ch; margin-top: 0; }
+  strong { color: var(--ink); }
+
+  .board {
+    border: 2px solid var(--wall-dim); border-radius: 10px; background: var(--panel);
+    padding: 20px; overflow-x: auto;
+  }
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .tile {
+    background: var(--panel-2); border: 1px solid var(--wall-dim); border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .tile .label { font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--ink-3); display: flex; gap: 6px; align-items: center; }
+  .tile .value { font-family: var(--mono); font-size: 26px; font-weight: 700;
+    font-variant-numeric: tabular-nums; margin-top: 6px; }
+  .tile .delta { font-size: 12.5px; color: var(--ink-2); margin-top: 2px; }
+  .tile .value.up { color: var(--pac-bright); }
+  .tile .value.down { color: var(--ghost-bright); }
+
+  .legend { display: flex; gap: 18px; align-items: center; font-size: 13px;
+    color: var(--ink-2); margin: 6px 2px 14px; font-family: var(--mono); }
+  .legend .key { display: inline-flex; align-items: center; gap: 7px; }
+  .legend .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+  svg text { font-family: var(--mono); fill: var(--ink-2); }
+  .gridline { stroke: #23233A; stroke-width: 1; }
+  .axisline { stroke: #33334E; stroke-width: 1; }
+
+  .tooltip {
+    position: fixed; pointer-events: none; background: #1D1D31; border: 1px solid var(--wall);
+    color: var(--ink); font-family: var(--mono); font-size: 12.5px; padding: 8px 10px;
+    border-radius: 6px; display: none; z-index: 10; white-space: nowrap;
+  }
+
+  .duel { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .duel { grid-template-columns: 1fr; } }
+  .duel figure { margin: 0; background: var(--panel-2); border: 1px solid var(--wall-dim);
+    border-radius: 8px; padding: 12px; }
+  .duel img { max-width: 100%; display: block; border-radius: 4px; image-rendering: pixelated; }
+  .duel figcaption { font-family: var(--mono); font-size: 12.5px; margin-top: 10px;
+    color: var(--ink-2); }
+  .duel .tag { font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; }
+  .duel .tag.before { color: var(--ghost-bright); }
+  .duel .tag.after { color: var(--pac-bright); }
+
+  table { border-collapse: collapse; width: 100%; font-family: var(--mono); font-size: 13px;
+    font-variant-numeric: tabular-nums; }
+  th, td { text-align: right; padding: 7px 12px; border-bottom: 1px solid #22223A; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--ink-3); font-weight: 600; text-transform: uppercase; font-size: 11px;
+    letter-spacing: .1em; }
+  td.win { color: var(--pac-bright); }
+  td.loss { color: var(--ink-2); }
+
+  .recipe { display: grid; gap: 10px; }
+  .step { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: baseline; }
+  .step .n { font-family: var(--mono); color: var(--pac-bright); font-size: 15px; }
+  .step p { margin: 0; color: var(--ink-2); }
+  .foot { margin-top: 70px; color: var(--ink-3); font-size: 12.5px; text-align: center;
+    font-family: var(--mono); }
+  a { color: var(--inky); }
+</style>
+
+<div class="wrap">
+<header>
+  <div class="dots" aria-hidden="true">
+    <span class="sprite">👻</span><i></i><i></i><i></i><i></i><i></i><i></i>
+    <span class="pacman"></span>
+  </div>
+  <h1 class="marquee">PACBRAIN: FROM <span class="ghost-word">GHOST&nbsp;FOOD</span> TO PLAYER&nbsp;ONE</h1>
+  <p class="sub">We dropped a 1.5B-parameter DeepSeek model into a Pacman arcade with no teacher,
+  no example games — only the machine's own score counter. This is what it learned.</p>
+</header>
+
+<div class="eyebrow">Insert coin · the scoreboard</div>
+<h2>Before and after, same 10 mazes</h2>
+<p class="lede">Both rows are the <strong>same model</strong> playing the <strong>same 10 fixed-seed boards</strong>
+with identical prompts — the only difference is the reinforcement-learning run in between.</p>
+<div class="board"><div class="tiles" id="tiles"></div></div>
+
+<div class="eyebrow">The training montage</div>
+<h2>24,000 practice moves in <span id="trainMinutes">—</span> minutes</h2>
+<p class="lede">During training the model samples 8 candidate moves per board and the arcade itself
+scores them — pellets and ghosts pay out, walls and deaths don't. The line is the average payout
+per move as training progresses: every point is a checkpoint we logged.</p>
+<div class="board">
+  <div class="legend"><span class="key"><span class="swatch" style="background:var(--pac)"></span>avg reward per move</span></div>
+  <div id="curve"></div>
+</div>
+
+<div class="eyebrow">Boss fight · the rematch</div>
+<h2>Every stat, before vs after</h2>
+<div class="board">
+  <div class="legend">
+    <span class="key"><span class="swatch" style="background:var(--ghost)"></span>base model (before)</span>
+    <span class="key"><span class="swatch" style="background:var(--pac)"></span>reward-trained (after)</span>
+  </div>
+  <div id="bars"></div>
+</div>
+
+<div class="eyebrow">Attract mode · watch the same maze twice</div>
+<h2>Seed 2000, played by both brains</h2>
+<div class="duel">
+  <figure>
+    <span class="tag before">Before · base model</span>
+    <img src="base_seed2000.gif" alt="Base model playing Pacman: mostly stuck, quickly caught by a ghost">
+    <figcaption id="beforeCap"></figcaption>
+  </figure>
+  <figure>
+    <span class="tag after">After · reward-trained</span>
+    <img src="rl_seed2000.gif" alt="Reward-trained model playing Pacman: clearing pellets and surviving">
+    <figcaption id="afterCap"></figcaption>
+  </figure>
+</div>
+
+<div class="eyebrow">Game log</div>
+<h2>All 20 games</h2>
+<div class="board" style="overflow-x:auto"><table id="games"></table></div>
+
+<div class="eyebrow">How it works</div>
+<h2>No teacher, just the score counter</h2>
+<div class="board recipe">
+  <div class="step"><span class="n">1P</span><p><strong>Explore.</strong> 200 throwaway games generate 3,000 unique board positions — no expert player anywhere.</p></div>
+  <div class="step"><span class="n">2P</span><p><strong>Score.</strong> For every legal move the game engine itself prices the outcome: +10 a pellet, +200 a ghost, −500 getting caught, −1 for dawdling, and a nonsense move that isn't on the board earns the worst penalty of all.</p></div>
+  <div class="step"><span class="n">3P</span><p><strong>Reinforce (GRPO).</strong> On an A100, the model guesses 8 moves per board; moves that out-earn their siblings get reinforced. Same algorithm family DeepSeek used to train R1.</p></div>
+  <div class="step"><span class="n">4P</span><p><strong>Rematch.</strong> The trained model replays the identical 10 held-out mazes against the untouched base model.</p></div>
+</div>
+
+<div class="foot">PacBrain · YC “Own Your Intelligence” hackathon · DeepSeek-R1-Distill-Qwen-1.5B, LoRA + GRPO on Modal ·
+game engine: edq-pacai (UC Berkeley CS188 lineage)</div>
+</div>
+
+<div class="tooltip" id="tip"></div>
+
+<script>
+const DATA = /*DATA*/{"base": {"label": "base", "games": 10, "avg_score": -428.1, "win_rate": 0.0, "illegal_move_rate": 0.8247978436657682, "pellets": 109, "ghosts_eaten": 0, "deaths": 10, "avg_survival_moves": 37.1, "per_game": [{"seed": 2000, "score": -494, "win": false, "moves": 14, "illegal": 14, "pellets": 2, "ghosts_eaten": 0, "died": 1}, {"seed": 2001, "score": -409, "win": false, "moves": 49, "illegal": 43, "pellets": 14, "ghosts_eaten": 0, "died": 1}, {"seed": 2002, "score": -409, "win": false, "moves": 19, "illegal": 19, "pellets": 11, "ghosts_eaten": 0, "died": 1}, {"seed": 2003, "score": -323, "win": false, "moves": 153, "illegal": 130, "pellets": 33, "ghosts_eaten": 0, "died": 1}, {"seed": 2004, "score": -459, "win": false, "moves": 9, "illegal": 6, "pellets": 5, "ghosts_eaten": 0, "died": 1}, {"seed": 2005, "score": -473, "win": false, "moves": 13, "illegal": 10, "pellets": 4, "ghosts_eaten": 0, "died": 1}, {"seed": 2006, "score": -451, "win": false, "moves": 11, "illegal": 6, "pellets": 6, "ghosts_eaten": 0, "died": 1}, {"seed": 2007, "score": -360, "win": false, "moves": 60, "illegal": 48, "pellets": 20, "ghosts_eaten": 0, "died": 1}, {"seed": 2008, "score": -466, "win": false, "moves": 26, "illegal": 19, "pellets": 6, "ghosts_eaten": 0, "died": 1}, {"seed": 2009, "score": -437, "win": false, "moves": 17, "illegal": 11, "pellets": 8, "ghosts_eaten": 0, "died": 1}]}, "rl": {"label": "rl", "games": 10, "avg_score": -422.1, "win_rate": 0.0, "illegal_move_rate": 0.0, "pellets": 116, "ghosts_eaten": 0, "deaths": 10, "avg_survival_moves": 38.1, "per_game": [{"seed": 2000, "score": -446, "win": false, "moves": 6, "illegal": 0, "pellets": 6, "ghosts_eaten": 0, "died": 1}, {"seed": 2001, "score": -412, "win": false, "moves": 52, "illegal": 0, "pellets": 14, "ghosts_eaten": 0, "died": 1}, {"seed": 2002, "score": -446, "win": false, "moves": 6, "illegal": 0, "pellets": 6, "ghosts_eaten": 0, "died": 1}, {"seed": 2003, "score": -389, "win": false, "moves": 29, "illegal": 0, "pellets": 14, "ghosts_eaten": 0, "died": 1}, {"seed": 2004, "score": -446, "win": false, "moves": 6, "illegal": 0, "pellets": 6, "ghosts_eaten": 0, "died": 1}, {"seed": 2005, "score": -384, "win": false, "moves": 24, "illegal": 0, "pellets": 14, "ghosts_eaten": 0, "died": 1}, {"seed": 2006, "score": -432, "win": false, "moves": 72, "illegal": 0, "pellets": 14, "ghosts_eaten": 0, "died": 1}, {"seed": 2007, "score": -421, "win": false, "moves": 61, "illegal": 0, "pellets": 14, "ghosts_eaten": 0, "died": 1}, {"seed": 2008, "score": -464, "win": false, "moves": 104, "illegal": 0, "pellets": 14, "ghosts_eaten": 0, "died": 1}, {"seed": 2009, "score": -381, "win": false, "moves": 21, "illegal": 0, "pellets": 14, "ghosts_eaten": 0, "died": 1}]}, "curve": [{"step": 10, "reward": -0.481, "reward_std": 0.6541, "loss": 0.0013, "kl": 0.033, "epoch": 0.02}, {"step": 20, "reward": 0.0142, "reward_std": 0.1183, "loss": 0.021, "kl": 0.5249, "epoch": 0.04}, {"step": 30, "reward": 0.2679, "reward_std": 0.0922, "loss": 0.0358, "kl": 0.894, "epoch": 0.06}, {"step": 40, "reward": 0.1867, "reward_std": 0.0, "loss": 0.0323, "kl": 0.8073, "epoch": 0.08}, {"step": 50, "reward": 0.1175, "reward_std": 0.0196, "loss": 0.0264, "kl": 0.6592, "epoch": 0.1}, {"step": 60, "reward": 0.05, "reward_std": 0.0375, "loss": 0.0237, "kl": 0.5936, "epoch": 0.12}, {"step": 70, "reward": 0.1379, "reward_std": 0.1066, "loss": 0.0217, "kl": 0.5425, "epoch": 0.14}, {"step": 80, "reward": 0.0162, "reward_std": 0.0059, "loss": 0.0239, "kl": 0.597, "epoch": 0.16}, {"step": 90, "reward": 0.1854, "reward_std": 0.0153, "loss": 0.0241, "kl": 0.6017, "epoch": 0.18}, {"step": 100, "reward": -0.0506, "reward_std": 0.1529, "loss": 0.0227, "kl": 0.5667, "epoch": 0.2}, {"step": 110, "reward": 0.0833, "reward_std": 0.1582, "loss": 0.0213, "kl": 0.5327, "epoch": 0.22}, {"step": 120, "reward": -0.0325, "reward_std": 0.0557, "loss": 0.0218, "kl": 0.5441, "epoch": 0.24}, {"step": 130, "reward": 0.2304, "reward_std": 0.1212, "loss": 0.0199, "kl": 0.4974, "epoch": 0.26}, {"step": 140, "reward": 0.1733, "reward_std": 0.0676, "loss": 0.0235, "kl": 0.5863, "epoch": 0.28}, {"step": 150, "reward": 0.275, "reward_std": 0.0401, "loss": 0.0166, "kl": 0.4146, "epoch": 0.3}, {"step": 160, "reward": 0.1629, "reward_std": 0.0513, "loss": 0.0164, "kl": 0.4105, "epoch": 0.32}, {"step": 170, "reward": 0.1221, "reward_std": 0.0483, "loss": 0.0153, "kl": 0.3819, "epoch": 0.34}, {"step": 180, "reward": 0.0879, "reward_std": 0.0507, "loss": 0.015, "kl": 0.3745, "epoch": 0.36}, {"step": 190, "reward": 0.2075, "reward_std": 0.0283, "loss": 0.0163, "kl": 0.4081, "epoch": 0.38}, {"step": 200, "reward": 0.2667, "reward_std": 0.0776, "loss": 0.0131, "kl": 0.3266, "epoch": 0.4}, {"step": 210, "reward": 0.1019, "reward_std": 0.1211, "loss": 0.0133, "kl": 0.3332, "epoch": 0.42}, {"step": 220, "reward": 0.2012, "reward_std": 0.02, "loss": 0.0148, "kl": 0.3707, "epoch": 0.44}, {"step": 230, "reward": 0.1967, "reward_std": 0.0094, "loss": 0.0163, "kl": 0.408, "epoch": 0.46}, {"step": 240, "reward": 0.2621, "reward_std": 0.0224, "loss": 0.0157, "kl": 0.3934, "epoch": 0.48}, {"step": 250, "reward": 0.2412, "reward_std": 0.0539, "loss": 0.0155, "kl": 0.3886, "epoch": 0.5}, {"step": 260, "reward": 0.1821, "reward_std": 0.0648, "loss": 0.0122, "kl": 0.3053, "epoch": 0.52}, {"step": 270, "reward": 0.0327, "reward_std": 0.0854, "loss": 0.0144, "kl": 0.3601, "epoch": 0.54}, {"step": 280, "reward": 0.2042, "reward_std": 0.0487, "loss": 0.0141, "kl": 0.3522, "epoch": 0.56}, {"step": 290, "reward": 0.1296, "reward_std": 0.0318, "loss": 0.0153, "kl": 0.3827, "epoch": 0.58}, {"step": 300, "reward": 0.29, "reward_std": 0.0789, "loss": 0.0126, "kl": 0.3149, "epoch": 0.6}, {"step": 310, "reward": 0.1262, "reward_std": 0.1016, "loss": 0.0134, "kl": 0.3353, "epoch": 0.62}, {"step": 320, "reward": 0.3244, "reward_std": 0.0717, "loss": 0.0143, "kl": 0.3566, "epoch": 0.64}, {"step": 330, "reward": -0.0129, "reward_std": 0.03, "loss": 0.015, "kl": 0.3746, "epoch": 0.66}, {"step": 340, "reward": 0.1383, "reward_std": 0.018, "loss": 0.0139, "kl": 0.3487, "epoch": 0.68}, {"step": 350, "reward": 0.2012, "reward_std": 0.086, "loss": 0.0148, "kl": 0.3693, "epoch": 0.7}, {"step": 360, "reward": 0.2525, "reward_std": 0.033, "loss": 0.0141, "kl": 0.3515, "epoch": 0.72}, {"step": 370, "reward": 0.1096, "reward_std": 0.0758, "loss": 0.014, "kl": 0.3493, "epoch": 0.74}, {"step": 380, "reward": 0.0556, "reward_std": 0.0678, "loss": 0.0132, "kl": 0.3309, "epoch": 0.76}, {"step": 390, "reward": 0.2442, "reward_std": 0.0778, "loss": 0.0139, "kl": 0.3466, "epoch": 0.78}, {"step": 400, "reward": 0.1292, "reward_std": 0.0275, "loss": 0.0146, "kl": 0.3642, "epoch": 0.8}, {"step": 410, "reward": 0.2608, "reward_std": 0.0306, "loss": 0.0129, "kl": 0.3213, "epoch": 0.82}, {"step": 420, "reward": 0.1462, "reward_std": 0.0082, "loss": 0.0122, "kl": 0.3054, "epoch": 0.84}, {"step": 430, "reward": 0.1275, "reward_std": 0.0716, "loss": 0.0139, "kl": 0.3468, "epoch": 0.86}, {"step": 440, "reward": 0.2954, "reward_std": 0.0507, "loss": 0.0131, "kl": 0.3284, "epoch": 0.88}, {"step": 450, "reward": 0.2583, "reward_std": 0.0165, "loss": 0.0134, "kl": 0.3338, "epoch": 0.9}, {"step": 460, "reward": 0.1152, "reward_std": 0.0501, "loss": 0.0132, "kl": 0.3304, "epoch": 0.92}, {"step": 470, "reward": 0.235, "reward_std": 0.0275, "loss": 0.0146, "kl": 0.365, "epoch": 0.94}, {"step": 480, "reward": 0.1283, "reward_std": 0.0542, "loss": 0.0127, "kl": 0.3169, "epoch": 0.96}, {"step": 490, "reward": 0.1558, "reward_std": 0.0731, "loss": 0.0133, "kl": 0.3321, "epoch": 0.98}, {"step": 500, "reward": 0.2217, "reward_std": 0.0624, "loss": 0.0127, "kl": 0.318, "epoch": 1.0}], "train_minutes": 11}/*/DATA*/;
+
+const fmt = (n, d=0) => n.toLocaleString("en-US", {maximumFractionDigits: d, minimumFractionDigits: d});
+
+function tiles() {
+  const b = DATA.base, r = DATA.rl;
+  const rows = [
+    {icon:"🏆", label:"Boards cleared", b:`${Math.round(b.win_rate*10)}/10`, r:`${Math.round(r.win_rate*10)}/10`, good:r.win_rate>b.win_rate},
+    {icon:"🟡", label:"Pellets munched", b:fmt(b.pellets), r:fmt(r.pellets), good:r.pellets>b.pellets},
+    {icon:"👻", label:"Ghosts gobbled", b:fmt(b.ghosts_eaten), r:fmt(r.ghosts_eaten), good:r.ghosts_eaten>=b.ghosts_eaten},
+    {icon:"🧱", label:"Confused moves", b:fmt(b.illegal_move_rate*100,1)+"%", r:fmt(r.illegal_move_rate*100,1)+"%", good:r.illegal_move_rate<b.illegal_move_rate},
+    {icon:"⏱️", label:"Avg survival", b:fmt(b.avg_survival_moves)+" moves", r:fmt(r.avg_survival_moves)+" moves", good:r.avg_survival_moves>b.avg_survival_moves},
+    {icon:"🎯", label:"Avg score", b:fmt(b.avg_score), r:fmt(r.avg_score), good:r.avg_score>b.avg_score},
+  ];
+  document.getElementById("tiles").innerHTML = rows.map(t => `
+    <div class="tile">
+      <div class="label"><span>${t.icon}</span>${t.label}</div>
+      <div class="value ${t.good?"up":"down"}">${t.r}</div>
+      <div class="delta">was ${t.b}</div>
+    </div>`).join("");
+}
+
+function curveChart() {
+  const pts = DATA.curve;
+  const W = 800, H = 300, m = {l:56, r:16, t:14, b:40};
+  const xs = pts.map(p=>p.step), ys = pts.map(p=>p.reward);
+  const x0 = 0, x1 = Math.max(...xs);
+  const yMin = Math.min(0, ...ys), yMax = Math.max(...ys)*1.15;
+  const X = v => m.l + (v-x0)/(x1-x0)*(W-m.l-m.r);
+  const Y = v => H-m.b - (v-yMin)/(yMax-yMin)*(H-m.t-m.b);
+  const line = pts.map((p,i)=>`${i?"L":"M"}${X(p.step).toFixed(1)},${Y(p.reward).toFixed(1)}`).join("");
+  const area = line + `L${X(x1).toFixed(1)},${Y(Math.max(0,yMin)).toFixed(1)}L${X(x0)},${Y(Math.max(0,yMin)).toFixed(1)}Z`;
+  const yTicks = 4, xTicks = 5;
+  let g = "";
+  for (let i=0;i<=yTicks;i++){
+    const v = yMin + (yMax-yMin)*i/yTicks;
+    g += `<line class="gridline" x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}"/>`;
+    g += `<text x="${m.l-8}" y="${Y(v)+4}" text-anchor="end" font-size="11">${v.toFixed(2)}</text>`;
+  }
+  for (let i=0;i<=xTicks;i++){
+    const v = x0 + (x1-x0)*i/xTicks;
+    g += `<text x="${X(v)}" y="${H-m.b+18}" text-anchor="middle" font-size="11">${Math.round(v)}</text>`;
+  }
+  if (yMin < 0) g += `<line class="axisline" x1="${m.l}" x2="${W-m.r}" y1="${Y(0)}" y2="${Y(0)}"/>`;
+  const last = pts[pts.length-1];
+  const svg = `
+  <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Average reward per move rising over training steps" style="width:100%;height:auto" id="curveSvg">
+    ${g}
+    <path d="${area}" fill="var(--pac)" opacity="0.12"/>
+    <path d="${line}" fill="none" stroke="var(--pac)" stroke-width="2"/>
+    <circle cx="${X(last.step)}" cy="${Y(last.reward)}" r="4.5" fill="var(--pac-bright)" stroke="var(--maze)" stroke-width="2"/>
+    <text x="${X(last.step)-8}" y="${Y(last.reward)-12}" text-anchor="end" font-size="12" fill="var(--pac-bright)">${last.reward.toFixed(2)}</text>
+    <text x="${(m.l+W-m.r)/2}" y="${H-4}" text-anchor="middle" font-size="11">training step (a checkpoint every 10)</text>
+    <circle id="hoverDot" r="4" fill="var(--pac-bright)" stroke="var(--maze)" stroke-width="2" style="display:none"/>
+  </svg>`;
+  const el = document.getElementById("curve");
+  el.innerHTML = svg;
+  const tip = document.getElementById("tip");
+  const svgEl = document.getElementById("curveSvg");
+  const dot = () => document.getElementById("hoverDot");
+  svgEl.addEventListener("mousemove", e => {
+    const rect = svgEl.getBoundingClientRect();
+    const sx = (e.clientX-rect.left)/rect.width*W;
+    let best = pts[0], bd = 1e9;
+    for (const p of pts){ const d = Math.abs(X(p.step)-sx); if (d<bd){bd=d;best=p;} }
+    dot().style.display = "";
+    dot().setAttribute("cx", X(best.step)); dot().setAttribute("cy", Y(best.reward));
+    tip.style.display = "block";
+    tip.innerHTML = `step ${best.step} · reward ${best.reward.toFixed(3)}<br><span style="color:var(--ink-3)">loss ${best.loss} · kl ${(+best.kl).toFixed(2)}</span>`;
+    tip.style.left = (e.clientX+14)+"px"; tip.style.top = (e.clientY-14)+"px";
+  });
+  svgEl.addEventListener("mouseleave", () => { tip.style.display="none"; dot().style.display="none"; });
+}
+
+function bars() {
+  const b = DATA.base, r = DATA.rl;
+  const metrics = [
+    {label:"🏆 boards cleared (of 10)", b:b.win_rate*10, r:r.win_rate*10, d:0},
+    {label:"🟡 pellets munched", b:b.pellets, r:r.pellets, d:0},
+    {label:"👻 ghosts gobbled", b:b.ghosts_eaten, r:r.ghosts_eaten, d:0},
+    {label:"💀 times caught (of 10)", b:b.deaths, r:r.deaths, d:0, lowerBetter:true},
+    {label:"🧱 confused moves %", b:b.illegal_move_rate*100, r:r.illegal_move_rate*100, d:1, lowerBetter:true},
+    {label:"⏱️ avg survival (moves)", b:b.avg_survival_moves, r:r.avg_survival_moves, d:0},
+  ];
+  const rows = metrics.map(mt => {
+    const max = Math.max(mt.b, mt.r, 1e-9);
+    const bw = mt.b/max*100, rw = mt.r/max*100;
+    return `
+    <div style="margin:16px 0">
+      <div style="font-family:var(--mono);font-size:12.5px;color:var(--ink-2);margin-bottom:6px">${mt.label}</div>
+      <div style="display:grid;gap:2px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="height:16px;border-radius:0 4px 4px 0;background:var(--ghost);width:${Math.max(bw,0.5)}%"></div>
+          <span style="font-family:var(--mono);font-size:12.5px;color:var(--ink)">${fmt(mt.b,mt.d)}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="height:16px;border-radius:0 4px 4px 0;background:var(--pac);width:${Math.max(rw,0.5)}%"></div>
+          <span style="font-family:var(--mono);font-size:12.5px;color:var(--ink)">${fmt(mt.r,mt.d)}</span>
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById("bars").innerHTML = rows.join("");
+}
+
+function gameTable() {
+  const head = `<tr><th>seed</th><th>before score</th><th>after score</th><th>after result</th><th>🟡</th><th>👻</th><th>🧱%</th></tr>`;
+  const bySeed = {};
+  DATA.base.per_game.forEach(g => { (bySeed[g.seed] = bySeed[g.seed] || {}).b = g; });
+  DATA.rl.per_game.forEach(g => { (bySeed[g.seed] = bySeed[g.seed] || {}).r = g; });
+  const rows = Object.keys(bySeed).sort().map(k => {
+    const b = bySeed[k].b||{}, r = bySeed[k].r||{};
+    const ill = r.moves ? (r.illegal/r.moves*100) : 0;
+    return `<tr><td>${k}</td><td>${fmt(b.score??0)}</td><td>${fmt(r.score??0)}</td>
+      <td class="${r.win?"win":"loss"}">${r.win?"CLEARED":"caught"}</td>
+      <td>${r.pellets??0}</td><td>${r.ghosts_eaten??0}</td><td>${fmt(ill,1)}</td></tr>`;
+  });
+  document.getElementById("games").innerHTML = head + rows.join("");
+}
+
+function captions() {
+  const b0 = DATA.base.per_game.find(g=>g.seed===2000) || {};
+  const r0 = DATA.rl.per_game.find(g=>g.seed===2000) || {};
+  document.getElementById("beforeCap").textContent =
+    `score ${fmt(b0.score??0)} · caught after ${b0.moves??"?"} moves · ${b0.illegal??"?"} confused moves`;
+  document.getElementById("afterCap").textContent =
+    `score ${fmt(r0.score??0)} · ${r0.win?"board cleared":"survived "+(r0.moves??"?")+" moves"} · ${r0.pellets??0} pellets · 0 confused moves`;
+  document.getElementById("trainMinutes").textContent = DATA.train_minutes;
+}
+
+tiles(); curveChart(); bars(); gameTable(); captions();
+</script>

@@ -61,7 +61,8 @@ class LLMAgent(pacai.core.agent.Agent):
         if self._stats_path:
             with open(self._stats_path, "a") as stream:
                 stream.write(json.dumps(dict(decision, raw=text[:80], illegal=illegal,
-                                             action=str(action), source=source)) + "\n")
+                                             action=str(action), source=source,
+                                             score=state.score)) + "\n")
         return action
 
     def game_complete(self, final_state):
