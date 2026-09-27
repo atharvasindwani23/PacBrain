@@ -17,18 +17,19 @@ python3 -m http.server 8000 --bind 127.0.0.1
 
 Open **http://127.0.0.1:8000/viewer.html** for the recorded before/after replays, per-seed results, and score comparison. The viewer uses checked-in artifacts and requires no API keys. For a live game in the browser: `./demo.sh both`.
 
-| Recorded evaluation | Base model | Reward-trained (GRPO) |
-| --- | ---: | ---: |
-| Invalid response / API-error fallback rate | 82.5% | 0% |
-| Mean score | −428.1 | −422.1 |
-| Pellets eaten (10 games) | 109 | 116 |
+All recorded numbers live in [`results/`](results/) — per-game observations
+(`results/base.json`, `results/rl.json`), the regenerated report
+([`results/results.md`](results/results.md)), and per-checkpoint training
+metrics (`results/training_curve.json`, `results/log_history*.json`). No
+result values are hardcoded in code or docs; `make_results.py` recomputes the
+report from the checked-in per-game data and cross-checks the saved summaries.
 
-Ten recorded games per model on `classic-small`, seeds 2000–2009. The fallback
-metric counts proposals that could not become legal moves, including request
-failures; the engine receives a legal fallback. The reward-only run learned the
-game's action rules completely (0% invalid) in ~11 GPU-minutes; ghost evasion
-is the open frontier. Training checkpoints (reward every 10 steps) are in
-`results/training_curve.json`.
+Evaluations are ten recorded games per model on `classic-small`, seeds
+2000–2009, identical prompts for both models. The `illegal`/fallback metric
+counts model proposals that could not become legal moves (including request
+failures); the engine receives a legal fallback move. Ghost evasion is the
+open frontier — one round of single-step rewards teaches legality and
+pellet-seeking, not multi-step evasion.
 
 ## Reward-only RL (no expert anywhere)
 
