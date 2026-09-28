@@ -1,0 +1,14 @@
+{
+  "game": "pacman",
+  "version": 1,
+  "source": "Hand-written rewards.py used for the checked-in GRPO runs (results/rl.json, results/rl2.json), expressed as a coach reward spec.",
+  "terms": [
+    {"name": "score_delta", "weight": 1.0, "why": "Engine score: +10 pellet, -1 per move, -500 caught."},
+    {"name": "food_progress", "weight": 2.0, "why": "Shaping: 2 points per maze step closer to the nearest pellet."},
+    {"name": "ghost_adjacent", "weight": -40.0, "why": "Moving next to an active ghost."},
+    {"name": "ghost_near", "weight": -15.0, "why": "Moving to two steps from an active ghost."}
+  ],
+  "scale": 10.0,
+  "clip": 3.0,
+  "illegal_output": -1.5
+}

@@ -4,6 +4,8 @@ rewards come from a per-action lookup computed by the game engine
 (see rewards.py). Illegal outputs get -1.5.
 
 Run:  modal run --detach modal_train_rl.py
+      modal run --detach modal_train_rl.py --game flappy --states-file flappy_states.jsonl \
+          --illegal-reward -2 --out-dir /vol/flappy_rl      # coach-designed reward
 Saves the merged model to Modal Volume 'pacbrain-models' at /rl.
 """
 
@@ -28,33 +30,38 @@ image = (
 
 ACTION_WORDS = {"north": "NORTH", "south": "SOUTH", "east": "EAST",
                 "west": "WEST", "stop": "STOP"}
+GAME_ACTION_WORDS = {"pacman": ACTION_WORDS,
+                     "flappy": {"flap": "FLAP", "wait": "WAIT"}}
 
 
-def completion_to_action(text: str):
+def completion_to_action(text: str, words=ACTION_WORDS):
     text = text.strip().lower()
     first = text.split()[0].strip(".,!") if text.split() else ""
-    if first in ACTION_WORDS:
-        return ACTION_WORDS[first]
-    for word, action in ACTION_WORDS.items():
+    if first in words:
+        return words[first]
+    for word, action in words.items():
         if word in text:
             return action
     return None
 
 
 @app.function(image=image, gpu="A100", timeout=7200, volumes={"/vol": vol})
-def train(states: list, base_model: str = BASE_MODEL, out_dir: str = "/vol/rl"):
+def train(states: list, base_model: str = BASE_MODEL, out_dir: str = "/vol/rl",
+          game: str = "pacman", illegal_reward: float = ILLEGAL_REWARD):
     import datasets
     from peft import LoraConfig
     from transformers import AutoTokenizer
     from trl import GRPOConfig, GRPOTrainer
 
+    words = GAME_ACTION_WORDS[game]
+
     def reward_env(prompts=None, completions=None, rewards=None, **kwargs):
         out = []
         for comp, table in zip(completions, rewards):
-            action = completion_to_action(comp)
+            action = completion_to_action(comp, words)
             # datasets pads the rewards struct with None for absent actions
             val = table.get(action) if action else None
-            out.append(ILLEGAL_REWARD if val is None else val)
+            out.append(illegal_reward if val is None else val)
         return out
 
     ds = datasets.Dataset.from_list(states)
@@ -103,9 +110,12 @@ def train(states: list, base_model: str = BASE_MODEL, out_dir: str = "/vol/rl"):
 
 @app.local_entrypoint()
 def main(states_file: str = "rl_states.jsonl",
-         base_model: str = BASE_MODEL, out_dir: str = "/vol/rl"):
+         base_model: str = BASE_MODEL, out_dir: str = "/vol/rl",
+         game: str = "pacman", illegal_reward: float = ILLEGAL_REWARD):
+    if game not in GAME_ACTION_WORDS:
+        raise ValueError(f"game must be one of {sorted(GAME_ACTION_WORDS)}")
     root = os.path.dirname(os.path.abspath(__file__))
     with open(os.path.join(root, "data", states_file)) as f:
         states = [json.loads(line) for line in f]
-    print(f"GRPO on {len(states)} states: {base_model} -> {out_dir}")
-    train.remote(states, base_model, out_dir)
+    print(f"GRPO on {len(states)} {game} states: {base_model} -> {out_dir}")
+    train.remote(states, base_model, out_dir, game, illegal_reward)
