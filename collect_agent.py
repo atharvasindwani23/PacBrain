@@ -5,6 +5,8 @@ state it visits with per-action environment rewards.
 Env vars:
   PACBRAIN_RL_LOG    JSONL output path (required to log)
   PACBRAIN_ENDPOINT  optional model endpoint; if set, used for ~half the moves
+  COACH_REWARD_SPEC  optional coach reward spec (python -m coach design); when
+                     unset, the hand-written rewards.action_rewards is used
 """
 
 import json
@@ -15,6 +17,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import pacai.core.agent
 
+from coach.rewards import spec_rewards_from_env
 from rewards import action_rewards
 from serializer import parse_action, serialize
 
@@ -22,6 +25,7 @@ class CollectAgent(pacai.core.agent.Agent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._log_path = os.environ.get("PACBRAIN_RL_LOG")
+        self._rewards = spec_rewards_from_env("pacman") or action_rewards
         self._client = None
         if os.environ.get("PACBRAIN_ENDPOINT"):
             import openai
@@ -31,7 +35,7 @@ class CollectAgent(pacai.core.agent.Agent):
 
     def get_action(self, state):
         prompt = serialize(state)
-        rewards = action_rewards(state)
+        rewards = self._rewards(state)
         if self._log_path:
             with open(self._log_path, "a") as f:
                 f.write(json.dumps({"prompt": prompt, "rewards": rewards}) + "\n")

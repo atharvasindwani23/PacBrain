@@ -48,6 +48,10 @@ pellet-seeking, not multi-step evasion.
    the same 10 fixed-seed games against both endpoints, decoding game events
    (pellets, ghosts eaten, deaths) from the per-move score timeline.
 
+## Coach: rewards designed from play
+
+`python -m coach run --game pacman` plays scouting games, writes notes about each one to Gbrain, then has a coach model design the GRPO reward and eval suite from those notes. The reward can only combine declared primitives (score, pellet distance, ghost proximity and so on), and every design must cite the notes it used. The same loop runs on a built-in Flappy Bird. The checked-in RL results used the hand-written `rewards.py`; see [the coach guide](docs/coach.md) for commands and status.
+
 ## Run locally
 
 Use Python **3.11 or 3.12** for the complete project. The standalone memory package also supports Python 3.9.
@@ -65,6 +69,7 @@ Copy `.env.example` to a private `.env` and supply the memory provider credentia
 
 | Component | Responsibility |
 | --- | --- |
+| `coach/` | Scout games, write grounded notes to Gbrain (openings via Memorable), and design reward specs and eval suites from them; Pac-Man and Flappy Bird. See [the coach guide](docs/coach.md) |
 | `collect_agent.py`, `collect_states.py`, `rewards.py` | Explore the game and price every legal move from environment rewards |
 | `serializer.py` | Shared board prompt and action parsing for training and inference |
 | `modal_train_rl.py` | GRPO LoRA reinforcement learning on a Modal GPU (reward-only) |
